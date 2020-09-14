@@ -22,5 +22,9 @@ database.connect((err)=>{
     console.log("Connected as id : ", database.threadId)
 })
 
-const PORT = 3000
+const {userRouter, orderRouter} = require("./router")
+app.use("/api/users", userRouter)
+app.use("/api/orders", orderRouter)
+
+const PORT = 2000
 app.listen(PORT, ()=> console.log(`Server is running at port ${PORT}`))
