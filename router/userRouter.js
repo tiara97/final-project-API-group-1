@@ -9,7 +9,8 @@ const { userController} = require("../controller")
 router.post("/register", registValidator, userController.register)
 router.post("/verification", verify, userController.emailVerification)
 router.post("/login", userController.login)
-router.patch("/edit/:id", userController.edit)
-router.patch("/editPassword/:id", userController.editPassword)
+router.post("/keepLogin", verify, userController.keepLogin)
+router.patch("/edit/:id", userController.editUser)
+router.patch("/editPassword/:id", passValidator, userController.editPassword)
 
 module.exports = router

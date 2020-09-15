@@ -6,9 +6,20 @@ const {asyncQuery, generateQuery} = require("../helper/queryHelper")
 const { createToken } = require("../helper/jwt")
 
 const SECRET_KEY = process.env.SECRET_KEY
-const TOKEN_GMAIL = process.env.TOKEN_GMAIL
+const GMAIL = process.env.GMAIL
+const PASS_GMAIL = process.env.PASS_GMAIL
 
 module.exports={
+    getUsersData: async(req,res)=>{
+        try {
+            const getUsers = `SELECT * FROM users`
+            const result = await asyncQuery(getUsers)
+            res.status(200).send(result)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
+    },
     register: async(req,res)=>{
         const { username, password, confPassword, email} = req.body
         const error = validationResult(req)
@@ -53,8 +64,8 @@ module.exports={
             let transporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                  user: "finalprojectjcwm13@gmail.com",
-                  pass: "group1jcwm13",
+                  user: GMAIL,
+                  pass: PASS_GMAIL,
                 },
                 tls: {
                   rejectUnauthorized: true,
@@ -137,7 +148,19 @@ module.exports={
             res.status(500).send(error)
         }
     },
-    edit: async(req,res)=>{
+    keepLogin: async(req,res)=>{
+        try {
+            const keepLogin = `SELECT * FROM users
+                                 WHERE user_id=${req.data.id} AND username='${req.data.username}'`;
+            const result = await asyncQuery(keepLogin);
+            console.log("result : ", result);
+            res.status(200).send(result[0]);
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
+    },
+    editUser: async(req,res)=>{
         const Id = parseInt(req.params.id)
         try {
             // check user id

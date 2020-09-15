@@ -11,7 +11,7 @@ module.exports = {
                                 JOIN order_status os ON o.order_status_id = os.status
                                 WHERE o.user_id = ${database.escape(Id)};`
             const result = await asyncQuery(getOrders)
-            res.status(200).send(result)
+            res.status(200).send(result) 
         } catch (error) {
             console.log(error)
             res.status(500).send(error)
