@@ -4,7 +4,6 @@ const { asyncQuery } = require("../helper/queryHelper")
 module.exports={
     getCarouselData: async(req,res)=>{
         try {
-            // get carousel
             const getCarousel = `SELECT * FROM carousel`
             const result = await asyncQuery(getCarousel)
             res.status(200).send(result)

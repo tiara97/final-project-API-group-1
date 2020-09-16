@@ -12,6 +12,5 @@ router.post("/login", userController.login)
 router.post("/keepLogin", verify, userController.keepLogin)
 router.patch("/edit/:id", userController.editUser)
 router.patch("/editPassword/:id", passValidator, userController.editPassword)
-router.patch("/editRole/:id", userController.editRole)
 
 module.exports = router

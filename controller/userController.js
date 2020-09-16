@@ -100,7 +100,11 @@ module.exports={
         try {
             // activate account
             const setStatus = `UPDATE users SET status = 1
+<<<<<<< HEAD
+                                WHERE user_id = ${database.escape(req.data.id)}
+=======
                                 WHERE id = ${database.escape(req.data.id)}
+>>>>>>> 8e0f3a20723367c31c58c45e31b02db6531c5496
                                 AND username = ${database.escape(req.data.username)}`
             const result = await asyncQuery(setStatus)
 
@@ -151,7 +155,7 @@ module.exports={
     keepLogin: async(req,res)=>{
         try {
             const keepLogin = `SELECT * FROM users
-                                 WHERE id=${req.data.id} AND username='${req.data.username}'`;
+                                 WHERE user_id=${req.data.id} AND username='${req.data.username}'`;
             const result = await asyncQuery(keepLogin);
             console.log("result : ", result);
             res.status(200).send(result[0]);
@@ -164,16 +168,15 @@ module.exports={
         const Id = parseInt(req.params.id)
         try {
             // check user id
-            const checkId = `SELECT * FROM users WHERE id = ${database.escape(Id)}`
+            const checkId = `SELECT * FROM users WHERE user_id = ${database.escape(Id)}`
             const resultId = await asyncQuery(checkId)
 
             if(resultId.length === 0){
                 return res.status(400).send(`Users with id : ${Id} doesn\'t exists`)
             }
 
-            // edit users table
             const edit = `UPDATE users SET ${generateQuery(req.body)}
-                        WHERE id = ${database.escape(Id)}`
+                        WHERE user_id = ${database.escape(Id)}`
             const result = await asyncQuery(edit)
             res.status(200).send(result)
         } catch (error) {
@@ -197,21 +200,13 @@ module.exports={
         }
 
         try {
-            // check user id
-            const checkId = `SELECT password FROM users WHERE id = ${database.escape(Id)}`
+            const checkId = `SELECT password FROM users WHERE user_id = ${database.escape(Id)}`
             const resultId = await asyncQuery(checkId)
 
             if(resultId.length === 0){
                 return res.status(200).send(`Users with id : ${Id} doesn\'t exists!`)
             }
 
-            // check password
-            const hashPass = CryptoJS.HmacMD5(password, SECRET_KEY)
-            if(hashPass.toString() !== resultId[0].password){
-                return res.status(400).send("Invalid Password!")
-            }
-
-            // update password
             const hashNewPass = CryptoJS.HmacMD5(newpassword, SECRET_KEY)
             const editPass = `UPDATE users SET password = ${database.escape(hashNewPass.toString())}
                             WHERE user_id = ${database.escape(Id)}`
@@ -219,20 +214,6 @@ module.exports={
             res.status(200).send(result)
         } catch (error) {
             console.logg(error)
-            res.status(500).send(error)
-        }
-    },
-    editRole: async(req,res)=>{
-        const Id = req.params.id
-        const {role_id} = req.body
-        try {
-            // edit role user
-            const editRole = `UPDATE users SET role_id = ${database.escape(role_id)}
-                            WHERE id = ${database.escape(Id)}`
-            const result = await asyncQuery(editRole)
-            res.status(200).send(result)
-        } catch (error) {
-            console.log(error)
             res.status(500).send(error)
         }
     }
