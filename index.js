@@ -8,12 +8,12 @@ dotenv.config()
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(express.static('./public'))
 
 app.get('/', (req, res)=>{
     res.status(200).send("Final Project API")
 })
 
-// export database
 const database = require('./database')
 database.connect((err)=>{
     if(err){
@@ -23,16 +23,13 @@ database.connect((err)=>{
     console.log("Connected as id : ", database.threadId)
 })
 
-// export router
-const {userRouter, orderRouter, profileRouter, carouselRouter, categoryRouter} = require("./router")
+const {userRouter, orderRouter, profileRouter, carouselRouter, transactionRouter, warehouseRouter} = require("./router")
 app.use("/api/users", userRouter)
 app.use("/api/orders", orderRouter)
 app.use("/api/profiles", profileRouter)
 app.use("/api/carousel", carouselRouter)
-app.use("/api/category", categoryRouter)
+app.use("/api/transaction", transactionRouter)
+app.use("/api/warehouse", warehouseRouter)
 
-// create localhost port
 const PORT = 2000
 app.listen(PORT, ()=> console.log(`Server is running at port ${PORT}`))
-
-// test upload
