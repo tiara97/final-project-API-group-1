@@ -171,6 +171,7 @@ module.exports={
                 return res.status(400).send(`Users with id : ${Id} doesn\'t exists`)
             }
 
+            // edit users table
             const edit = `UPDATE users SET ${generateQuery(req.body)}
                         WHERE id = ${database.escape(Id)}`
             const result = await asyncQuery(edit)
@@ -196,6 +197,7 @@ module.exports={
         }
 
         try {
+            // check user id
             const checkId = `SELECT password FROM users WHERE id = ${database.escape(Id)}`
             const resultId = await asyncQuery(checkId)
 
@@ -203,11 +205,13 @@ module.exports={
                 return res.status(200).send(`Users with id : ${Id} doesn\'t exists!`)
             }
 
+            // check password
             const hashPass = CryptoJS.HmacMD5(password, SECRET_KEY)
             if(hashPass.toString() !== resultId[0].password){
                 return res.status(400).send("Invalid Password!")
             }
 
+            // update password
             const hashNewPass = CryptoJS.HmacMD5(newpassword, SECRET_KEY)
             const editPass = `UPDATE users SET password = ${database.escape(hashNewPass.toString())}
                             WHERE user_id = ${database.escape(Id)}`
@@ -222,6 +226,7 @@ module.exports={
         const Id = req.params.id
         const {role_id} = req.body
         try {
+            // edit role user
             const editRole = `UPDATE users SET role_id = ${database.escape(role_id)}
                             WHERE id = ${database.escape(Id)}`
             const result = await asyncQuery(editRole)
