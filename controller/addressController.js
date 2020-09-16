@@ -26,10 +26,6 @@ module.exports={
                  return res.status(400).send(`Users with id : ${Id} doesn\'t exists`)
              }
  
-<<<<<<< HEAD
-=======
-            //  edit user address
->>>>>>> 8e0f3a20723367c31c58c45e31b02db6531c5496
              const edit = `UPDATE user_address SET ${generateQuery(req.body)}
                          WHERE user_id = ${database.escape(Id)}`
              const result = await asyncQuery(edit)
