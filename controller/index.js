@@ -4,6 +4,7 @@ const profileController = require("./profileController")
 const carouselController = require("./carouselController")
 const transactionController = require('./transactionController')
 const warehouseController = require('./warehouseController')
+const categoryController = require("./categoryController")
 
 module.exports = {
     userController,
@@ -11,5 +12,6 @@ module.exports = {
     profileController,
     carouselController,
     transactionController,
-    warehouseController
+    warehouseController,
+    categoryController
 }
