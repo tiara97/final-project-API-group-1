@@ -2,7 +2,7 @@
 const router = require('express').Router()
 
 // import controller
-const { productController } = require('../controllers')
+const { productController } = require('../controller')
 
 //  route get product
 router.get('/products', productController.getProduct)
