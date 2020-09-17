@@ -1,3 +1,4 @@
+const database = require('../database')
 const {asyncQuery} = require('../helpers/queryHelp')
 
 module.exports = {
@@ -19,16 +20,11 @@ module.exports = {
                         WHERE o.order_number = ${orderNumber[0].order_number}`
             const cart = await asyncQuery(getCart)
 
-            // get total price in cart
             const totalPrice = `SELECT SUM(price_each) AS total_price FROM order_details
-                            WHERE order_number = ${orderNumber[0].order_number}`
+                                WHERE order_number = ${orderNumber[0].order_number}`
             const price = await asyncQuery(totalPrice)
-
-            // add totalPrice to cart
-            cart.totalPrice = price[0].total_price
-
             // send response
-            res.status(200).send(cart[0])
+            res.status(200).send({cart, total:price[0]})
         } catch (error) {
             // send error
             console.log(error)
