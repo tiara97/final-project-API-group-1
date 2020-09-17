@@ -25,13 +25,14 @@ database.connect((err)=>{
     console.log("Connected as id : ", database.threadId)
 })
 
-const {productRouter, cartRouter, userRouter, orderRouter, profileRouter, carouselRouter, transactionRouter, warehouseRouter} = require("./router")
+const {productRouter, cartRouter, userRouter, orderRouter, profileRouter, carouselRouter, transactionRouter, warehouseRouter, categoryRouter} = require("./router")
 app.use("/api/users", userRouter)
 app.use("/api/orders", orderRouter)
 app.use("/api/profiles", profileRouter)
 app.use("/api/carousel", carouselRouter)
 app.use("/api/transaction", transactionRouter)
 app.use("/api/warehouse", warehouseRouter)
+app.use("/api/category", categoryRouter)
 app.use('/api', productRouter)
 app.use('/api', cartRouter)
 
