@@ -46,11 +46,12 @@ module.exports={
             const hashPass = CryptoJS.HmacMD5(password, SECRET_KEY)
 
             // add to users table
-            const addUSer = `INSERT INTO users (username, password, email, role, status_id)
-                            VALUES (${database.escape(username)}, ${database.escape(hashPass.toString())}, ${database.escape(email)}, 'user', 2)`
+            const addUSer = `INSERT INTO users (username, password, email, role_id, status_id)
+                            VALUES (${database.escape(username)}, ${database.escape(hashPass.toString())}, ${database.escape(email)}, 3, 2)`
             const resultAdd = await asyncQuery(addUSer)
 
             const new_user_id = resultAdd.insertId
+            req.body.id = new_user_id
             
             // add to profile table
             const addProfile = `INSERT INTO user_profiles (user_id) VALUES (${database.escape(new_user_id)}) `
@@ -80,7 +81,7 @@ module.exports={
                 text: "",
                 html: `<h1>Congratulation! You've been registered on my website!</h1>
                 <h3>Click link below to activate your account!<h3>
-                <a href="http://localhost:3000/verification?${token}">http://localhost:3000/verification?${token}</a>`
+                <a href="http://localhost:3000/Verifikasi?${token}">http://localhost:3000/Verifikasi?${token}</a>`
             }
 
             const result = await transporter.sendMail(option)
@@ -99,7 +100,7 @@ module.exports={
     emailVerification: async(req,res)=>{
         try {
             // activate account
-            const setStatus = `UPDATE users SET status = 1
+            const setStatus = `UPDATE users SET status_id = 1
                                 WHERE id = ${database.escape(req.data.id)}
                                 AND username = ${database.escape(req.data.username)}`
             const result = await asyncQuery(setStatus)
