@@ -42,7 +42,7 @@ module.exports={
             return res.status(400).send('No image')
         }
         try {
-            const query = `UPDATE user_profiles SET image = '${Id}/${req.file.filename}' WHERE user_id = ${database.escape(Id)};`
+            const query = `UPDATE user_profiles SET image = 'image/${req.file.filename}' WHERE user_id = ${database.escape(Id)};`
             const result = await asyncQuery(query)
             res.status(200).send(result)
         } catch (error) {
