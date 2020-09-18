@@ -20,7 +20,7 @@ module.exports = {
                         WHERE o.order_number = ${orderNumber[0].order_number}`
             const cart = await asyncQuery(getCart)
 
-            const totalPrice = `SELECT SUM(price_each) AS total_price FROM order_details
+            const totalPrice = `SELECT SUM(price_each * qty) AS total_price FROM order_details
                                 WHERE order_number = ${orderNumber[0].order_number}`
             const price = await asyncQuery(totalPrice)
             // send response
