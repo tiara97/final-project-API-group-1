@@ -4,7 +4,7 @@ const router = require("express").Router()
 const {profileController} = require("../controller")
 const {upload} = require('../helper/multer')
 
-const DESTINATION = './public/profile'
+const DESTINATION = './public/image'
 const uploader = upload(DESTINATION)
 
 router.get("/get/:id", profileController.getProfile)
