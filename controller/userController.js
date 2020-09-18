@@ -100,11 +100,7 @@ module.exports={
         try {
             // activate account
             const setStatus = `UPDATE users SET status = 1
-<<<<<<< HEAD
-                                WHERE user_id = ${database.escape(req.data.id)}
-=======
                                 WHERE id = ${database.escape(req.data.id)}
->>>>>>> 8e0f3a20723367c31c58c45e31b02db6531c5496
                                 AND username = ${database.escape(req.data.username)}`
             const result = await asyncQuery(setStatus)
 
