@@ -6,6 +6,6 @@ router.get('/get/:id', warehouseController.getWarehouseById)
 router.patch('/edit/:id', warehouseController.editWarehouse)
 router.post('/add', warehouseController.addWarehouse)
 router.delete('/delete/:id', warehouseController.deleteWarehouse)
-router.patch('/cart/warehouseID/:id', cartController.updateWarehouseID)
+
 
 module.exports = router
