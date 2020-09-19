@@ -18,7 +18,7 @@ module.exports = {
         const Id = parseInt(req.params.id)
         try {
             // check warehouse id
-            const query = `SELECT * FROM warehouse WHERE id = ${database.escape(Id)}`
+            const query = `SELECT * FROM warehouse WHERE admin_id = ${database.escape(Id)}`
             const result = await asyncQuery(query)
             if(result.length === 0){
                 return res.status(400).send(`Warehouse with id : ${Id} doesn\'t exists`)
