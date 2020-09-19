@@ -1,3 +1,4 @@
+const database = require('../database')
 const {asyncQuery} = require('../helpers/queryHelp')
 
 module.exports = {
@@ -19,13 +20,13 @@ module.exports = {
                         WHERE o.order_number = ${orderNumber[0].order_number}`
             const cart = await asyncQuery(getCart)
 
-            // get total price in cart
-            const totalPrice = `SELECT SUM(price_each* qty) AS total_price FROM order_details
-                            WHERE order_number = ${orderNumber[0].order_number}`
-            const price = await asyncQuery(totalPrice)
 
+
+            const totalPrice = `SELECT SUM(price_each * qty) AS total_price FROM order_details
+                                WHERE order_number = ${orderNumber[0].order_number}`
+            const price = await asyncQuery(totalPrice)
             // send response
-            res.status(200).send({cart, total: price[0].total_price})
+            res.status(200).send({cart, total:price[0]})
         } catch (error) {
             // send error
             console.log(error)
@@ -134,5 +135,63 @@ module.exports = {
              console.log(error)
              res.status(500).send(error)
          }
+    },
+    updateWarehouseID: async (req,res)=>{
+        const {order_number} = req.body
+        const id = parseInt(req.params.id)
+        try {
+            // get latitude and longitude from data address
+            const getAddress = `SELECT latitude, longitude FROM user_address WHERE id = ${database.escape(id)}`
+            const latlong = await asyncQuery(getAddress)
+
+            // get data warehouse
+            const getWarehouse = `SELECT * FROM warehouse`
+            const warehouse = await asyncQuery(getWarehouse)
+
+            // compare all warehouse distance from user address using haversine method
+            let R = 6371e3
+            let φ1 = 0
+            let φ2 = 0
+            let Δφ = 0
+            let Δλ = 0
+            let a = 0
+            let c =0
+            let d = 0
+            let lat1 = latlong[0].latitude
+            let lat2 = 0
+            let lon1 = latlong[0].longitude
+            let lon2 = 0
+            let jarak = []
+            let wareHouseID = null
+
+            warehouse.map((item)=>{
+                return(
+                    lat2 = item.latitude,
+                    lon2 = item.longitude,
+                    φ1 =lat1 * Math.PI/180, // φ, λ in radians
+                    φ2 = lat2 * Math.PI/180,
+                    Δφ = (lat2-lat1) * Math.PI/180,
+                    Δλ = (lon2-lon1) * Math.PI/180,
+                    a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                            Math.cos(φ1) * Math.cos(φ2) *
+                            Math.sin(Δλ/2) * Math.sin(Δλ/2),
+                    c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)),
+                    d = R * c, // in metres
+                    jarak.push(d),
+                    d === Math.min(...jarak)? warehouseID = item.id : null
+                    )
+                })
+            console.log("warehouse id : ",warehouseID)
+
+            // Update warehouse id on table orders
+            const updateOrders = `UPDATE orders SET warehouse_id = ${database.escape(warehouseID)}
+                                WHERE order_number = ${database.escape(order_number)}`
+            const result = await asyncQuery(updateOrders)
+
+            res.status(200).send(result)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
     }
 }

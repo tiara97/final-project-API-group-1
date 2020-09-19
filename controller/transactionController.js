@@ -29,7 +29,7 @@ module.exports = {
             return res.status(400).send('No image')
         }
         try {
-            const query = `UPDATE orders SET payment_note = '${order}/${req.file.filename}' WHERE order_number = ${database.escape(order)};`
+            const query = `UPDATE orders SET payment_note = 'receipt/${req.file.filename}' WHERE order_number = ${database.escape(order)};`
             const result = await asyncQuery(query)
             res.status(200).send(result)
         } catch (error) {

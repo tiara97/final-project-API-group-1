@@ -6,6 +6,7 @@ const {verify} = require("../helper/jwt")
 const { userController} = require("../controller")
 
 // create router
+router.get("/get", userController.getUsersData)
 router.post("/register", registValidator, userController.register)
 router.post("/verification", verify, userController.emailVerification)
 router.post("/login", userController.login)
