@@ -1,3 +1,6 @@
+// import all controller
+const productController = require('./productController')
+const cartController = require('./cartController')
 const userController = require("./userController")
 const orderController = require("./orderController")
 const profileController = require("./profileController")
@@ -13,5 +16,8 @@ module.exports = {
     carouselController,
     transactionController,
     warehouseController,
-    categoryController
+    categoryController,
+    productController, 
+    cartController
+
 }

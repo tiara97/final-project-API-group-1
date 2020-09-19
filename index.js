@@ -8,7 +8,9 @@ dotenv.config()
 
 app.use(cors())
 app.use(bodyParser.json())
+
 app.use(express.static('./public'))
+
 
 app.get('/', (req, res)=>{
     res.status(200).send("Final Project API")
@@ -23,7 +25,9 @@ database.connect((err)=>{
     console.log("Connected as id : ", database.threadId)
 })
 
-const {userRouter, orderRouter, profileRouter, carouselRouter, categoryRouter, transactionRouter, warehouseRouter} = require("./router")
+
+const {productRouter, cartRouter, userRouter, orderRouter, profileRouter, carouselRouter, transactionRouter, warehouseRouter, categoryRouter} = require("./router")
+
 app.use("/api/users", userRouter)
 app.use("/api/orders", orderRouter)
 app.use("/api/profiles", profileRouter)
@@ -31,6 +35,14 @@ app.use("/api/carousel", carouselRouter)
 app.use("/api/category", categoryRouter)
 app.use("/api/transaction", transactionRouter)
 app.use("/api/warehouse", warehouseRouter)
+app.use("/api/category", categoryRouter)
+app.use('/api/products', productRouter)
+app.use('/api/cart', cartRouter)
+
 
 const PORT = 2000
 app.listen(PORT, ()=> console.log(`Server is running at port ${PORT}`))
+
+
+// test branch
+
