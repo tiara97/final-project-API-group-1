@@ -5,11 +5,12 @@ const router = require('express').Router()
 const { cartController } = require('../controller')
 
 // create route
-router.get('/cart/:id', cartController.getCart)
-router.post('/cart/add', cartController.addToCart)
-router.patch('/cart/edit/:id', cartController.editQtyInCart)
-router.delete('/cart/delete/:id', cartController.deleteCart)
-router.patch('/cart/warehouseID/:id', cartController.updateWarehouseID)
+
+router.get('/:id', cartController.getCart)
+router.post('/add', cartController.addToCart)
+router.patch('/edit/:id', cartController.editQtyInCart)
+router.delete('/delete/:id', cartController.deleteCart)
+
 
 // export router
 module.exports = router

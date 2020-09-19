@@ -36,8 +36,9 @@ app.use("/api/category", categoryRouter)
 app.use("/api/transaction", transactionRouter)
 app.use("/api/warehouse", warehouseRouter)
 app.use("/api/category", categoryRouter)
-app.use('/api', productRouter)
-app.use('/api', cartRouter)
+app.use('/api/products', productRouter)
+app.use('/api/cart', cartRouter)
+
 
 const PORT = 2000
 app.listen(PORT, ()=> console.log(`Server is running at port ${PORT}`))
