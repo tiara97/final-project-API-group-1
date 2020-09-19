@@ -3,6 +3,7 @@ const {asyncQuery} = require("../helper/queryHelper")
 
 module.exports = {
     getOrdersData: async(req,res)=>{
+        console.log(test)
         try {
             // get all order data
             const getOrders = `SELECT o.id, o.user_id, o.order_number, o.order_date, o.required_date,
