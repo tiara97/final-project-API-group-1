@@ -5,6 +5,7 @@ module.exports={
     getProfile: async(req,res)=>{
         const Id = parseInt(req.params.id)
         try {
+            // get profile data
             const getProfile = `SELECT * FROM user_profiles WHERE user_id = ${database.escape(Id)}`
             const result = await asyncQuery(getProfile)
             res.status(200).send(result)
@@ -33,9 +34,26 @@ module.exports={
             res.status(500).send(error)
         }
     },
+    // user upload foto profil
+    picUpload: async (req, res) => {
+        const Id = parseInt(req.params.id)
+        console.log(req.file)
+        if (req.file === undefined) {
+            return res.status(400).send('No image')
+        }
+        try {
+            const query = `UPDATE user_profiles SET image = 'image/${req.file.filename}' WHERE user_id = ${database.escape(Id)};`
+            const result = await asyncQuery(query)
+            res.status(200).send(result)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
+    },
     getFavoriteData: async(req,res)=>{
         const Id = parseInt(req.params.id)
         try {
+            // get favorite data
             const getFavorite = `SELECT * FROM favorite WHERE user_id = ${database.escape(Id)}`
             const result = await asyncQuery(getFavorite)
             res.status(200).send(result)

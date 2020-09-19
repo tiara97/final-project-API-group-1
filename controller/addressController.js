@@ -5,6 +5,7 @@ module.exports={
     getAddress: async(req,res)=>{
         const Id = parseInt(req.params.id)
         try {
+            console.log('test')
             const getAddress = `SELECT ua.id, ua.user_id, ua.address, ua.city, ua.province, ua.postcode, ua.latitude, ua.longitude, a.type FROM user_address ua
             LEFT JOIN address_type a on ua.address_type_id = a.id
             WHERE ua.user_id = ${database.escape(Id)}`

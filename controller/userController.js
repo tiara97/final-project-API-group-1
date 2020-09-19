@@ -46,11 +46,12 @@ module.exports={
             const hashPass = CryptoJS.HmacMD5(password, SECRET_KEY)
 
             // add to users table
-            const addUSer = `INSERT INTO users (username, password, email, role, status_id)
-                            VALUES (${database.escape(username)}, ${database.escape(hashPass.toString())}, ${database.escape(email)}, 'user', 2)`
+            const addUSer = `INSERT INTO users (username, password, email, role_id, status_id)
+                            VALUES (${database.escape(username)}, ${database.escape(hashPass.toString())}, ${database.escape(email)}, 3, 2)`
             const resultAdd = await asyncQuery(addUSer)
 
             const new_user_id = resultAdd.insertId
+            req.body.id = new_user_id
             
             // add to profile table
             const addProfile = `INSERT INTO user_profiles (user_id) VALUES (${database.escape(new_user_id)}) `
@@ -80,7 +81,7 @@ module.exports={
                 text: "",
                 html: `<h1>Congratulation! You've been registered on my website!</h1>
                 <h3>Click link below to activate your account!<h3>
-                <a href="http://localhost:3000/verification?${token}">http://localhost:3000/verification?${token}</a>`
+                <a href="http://localhost:3000/Verifikasi?${token}">http://localhost:3000/Verifikasi?${token}</a>`
             }
 
             const result = await transporter.sendMail(option)
@@ -99,12 +100,9 @@ module.exports={
     emailVerification: async(req,res)=>{
         try {
             // activate account
+
             const setStatus = `UPDATE users SET status = 1
-<<<<<<< HEAD
-                                WHERE user_id = ${database.escape(req.data.id)}
-=======
                                 WHERE id = ${database.escape(req.data.id)}
->>>>>>> 8e0f3a20723367c31c58c45e31b02db6531c5496
                                 AND username = ${database.escape(req.data.username)}`
             const result = await asyncQuery(setStatus)
 
@@ -139,7 +137,7 @@ module.exports={
 
             // create token
             const token = createToken({
-                id: result[0].user_id,
+                id: result[0].id,
                 username: result[0].username
             })
             console.log("token : ", token)
@@ -155,7 +153,7 @@ module.exports={
     keepLogin: async(req,res)=>{
         try {
             const keepLogin = `SELECT * FROM users
-                                 WHERE user_id=${req.data.id} AND username='${req.data.username}'`;
+                                 WHERE id=${req.data.id} AND username='${req.data.username}'`;
             const result = await asyncQuery(keepLogin);
             console.log("result : ", result);
             res.status(200).send(result[0]);
@@ -168,7 +166,7 @@ module.exports={
         const Id = parseInt(req.params.id)
         try {
             // check user id
-            const checkId = `SELECT * FROM users WHERE user_id = ${database.escape(Id)}`
+            const checkId = `SELECT * FROM users WHERE id = ${database.escape(Id)}`
             const resultId = await asyncQuery(checkId)
 
             if(resultId.length === 0){
@@ -176,7 +174,7 @@ module.exports={
             }
 
             const edit = `UPDATE users SET ${generateQuery(req.body)}
-                        WHERE user_id = ${database.escape(Id)}`
+                        WHERE id = ${database.escape(Id)}`
             const result = await asyncQuery(edit)
             res.status(200).send(result)
         } catch (error) {
@@ -200,7 +198,7 @@ module.exports={
         }
 
         try {
-            const checkId = `SELECT password FROM users WHERE user_id = ${database.escape(Id)}`
+            const checkId = `SELECT password FROM users WHERE id = ${database.escape(Id)}`
             const resultId = await asyncQuery(checkId)
 
             if(resultId.length === 0){
@@ -209,7 +207,7 @@ module.exports={
 
             const hashNewPass = CryptoJS.HmacMD5(newpassword, SECRET_KEY)
             const editPass = `UPDATE users SET password = ${database.escape(hashNewPass.toString())}
-                            WHERE user_id = ${database.escape(Id)}`
+                            WHERE id = ${database.escape(Id)}`
             const result = await asyncQuery(editPass)
             res.status(200).send(result)
         } catch (error) {
