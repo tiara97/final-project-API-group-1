@@ -36,23 +36,24 @@ module.exports = {
       res.status(500).send(error);
     }
   },
-  getProductById: async (req, res) => {
+  getProductDetails: async (req, res) => {
     console.log("params: ", req.params);
     try {
       // get product by id
-      const getProductById = `SELECT p.id, p.name, tb2.image, p.price, p.desc, CONCAT(height, ',', width, ',', length) AS size, p.weight, p.material, color, stock_available, stock_ordered, warehouse_id
-            FROM products p
-            JOIN (
-                SELECT product_id, GROUP_CONCAT(pc.color) AS color, GROUP_CONCAT(stock_available) AS stock_available, GROUP_CONCAT(stock_ordered) AS stock_ordered,
-                GROUP_CONCAT(warehouse_id) AS warehouse_id
-                FROM product_stock pstock
-                JOIN product_color pc ON pstock.color_id = pc.id
-                GROUP BY product_id
-            ) AS tb1 ON p.id = tb1.product_id
-            JOIN (SELECT product_id, GROUP_CONCAT(image) AS image FROM product_images
-            GROUP BY product_id) AS tb2 ON p.id = tb2.product_id
-            WHERE id = ${req.params.id}`;
-      const result = await asyncQuery(getProductById);
+      const productDetails = `SELECT p.id, p.name, tb3.category, tb2.image, p.price, p.desc, CONCAT(height, ',', width, ',', length) AS size, p.weight, p.material, color, stock_available, stock_ordered, warehouse_id
+                          FROM products p
+                          JOIN (SELECT product_id, GROUP_CONCAT(pc.color) AS color, GROUP_CONCAT(stock_available) AS stock_available, GROUP_CONCAT(stock_ordered) AS stock_ordered, GROUP_CONCAT(warehouse_id) AS warehouse_id
+                              FROM product_stock pstock
+                              JOIN product_color pc ON pstock.color_id = pc.id
+                              GROUP BY product_id) AS tb1 ON p.id = tb1.product_id
+                          JOIN (SELECT product_id, GROUP_CONCAT(image) AS image
+                              FROM product_images
+                              GROUP BY product_id) AS tb2 ON p.id = tb2.product_id
+                          JOIN (SELECT pc.product_id, c.category
+                              FROM categories c
+                              JOIN product_category pc ON c.id = pc.category_id) AS tb3 ON p.id = tb3.product_id
+                          WHERE id = ${req.params.id}`;
+      const result = await asyncQuery(productDetails);
 
       // convert data multiple dimensions to array
       result.forEach((item) => {
@@ -65,7 +66,7 @@ module.exports = {
       });
 
       // send result
-      res.status(200).send(result);
+      res.status(200).send(result[0]);
     } catch (err) {
       // send error
       console.log(err)
@@ -94,7 +95,7 @@ module.exports = {
       });
 
       // send result
-      res.status(200).send(result[0]);
+      res.status(200).send(result);
     } catch (err) {
       // send error
       console.log(err)
