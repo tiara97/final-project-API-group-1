@@ -9,6 +9,7 @@ const carouselRouter = require("./carouselRouter");
 const transactionRouter = require("./transactionRouter");
 const warehouseRouter = require("./warehouseRouter");
 const categoryRouter = require("./categoryRouter")
+const addressRouter = require("./addressRouter")
 
 // export router
 module.exports = {
@@ -20,6 +21,7 @@ module.exports = {
   carouselRouter,
   transactionRouter,
   warehouseRouter,
-  categoryRouter
+  categoryRouter,
+  addressRouter
 };
 
