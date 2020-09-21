@@ -1,8 +1,20 @@
 const database = require("../database")
-const {asyncQuery} = require("../helper")
+const {asyncQuery} = require("../helper/queryHelper")
 
 module.exports={
     getAddress: async(req,res)=>{
+        try {
+            console.log('test')
+            const getAddress = `SELECT ua.id, ua.user_id, ua.address, ua.city, ua.province, ua.postcode, ua.latitude, ua.longitude, a.type FROM user_address ua
+            LEFT JOIN address_type a on ua.address_type_id = a.id`
+            const result = await asyncQuery(getAddress)
+            res.status(200).send(result)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
+    },
+    getAddressByID: async(req,res)=>{
         const Id = parseInt(req.params.id)
         try {
             console.log('test')
@@ -10,7 +22,7 @@ module.exports={
             LEFT JOIN address_type a on ua.address_type_id = a.id
             WHERE ua.user_id = ${database.escape(Id)}`
             const result = await asyncQuery(getAddress)
-            res.status(200).send(result)
+            res.status(200).send(result[0])
         } catch (error) {
             console.log(error)
             res.status(500).send(error)
@@ -31,6 +43,17 @@ module.exports={
                          WHERE user_id = ${database.escape(Id)}`
              const result = await asyncQuery(edit)
              res.status(200).send(result)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
+    },
+    deleteAddress: async(req,res)=>{
+        const Id = parseInt(req.params.id)
+        try {
+            const del = `DELETE FROM user_address WHERE id = ${database.escape(Id)}`
+            const result = await asyncQuery(del)
+            res.status(200).send(result)
         } catch (error) {
             console.log(error)
             res.status(500).send(error)
