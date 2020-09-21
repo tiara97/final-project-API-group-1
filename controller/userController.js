@@ -21,12 +21,13 @@ module.exports={
         }
     },
     register: async(req,res)=>{
-        const { username, password, confPassword, email} = req.body
+        const { username, password, confPassword, email, user_fullname, phone, address, city, province, postcode } = req.body
         const error = validationResult(req)
 
         // check input with express validator
         if(!error.isEmpty()){
             return res.status(422).send({errors: error.array()[0].msg})
+            // return res.status(422).send({errors: error.array().map((item)=> item.msg)})
         }
 
         // check password === confPassword?
@@ -54,8 +55,12 @@ module.exports={
             req.body.id = new_user_id
             
             // add to profile table
-            const addProfile = `INSERT INTO user_profiles (user_id) VALUES (${database.escape(new_user_id)}) `
+            const addProfile = `INSERT INTO user_profiles (user_id, user_fullname, phone) VALUES (${database.escape(new_user_id)}, ${database.escape(user_fullname)}, ${database.escape(phone)}) `
             const resultAddProfile = await asyncQuery(addProfile)
+
+            // add to address table
+            const addAddress = `INSERT INTO user_address(user_id, address, city, province, postcode) VALUES (${database.escape(new_user_id)}, ${database.escape(address)}, ${database.escape(city)}, ${database.escape(province)}, ${database.escape(postcode)}) `
+            const resultAddAddress = await asyncQuery(addAddress)
 
             // create token
             const token = createToken({id: new_user_id, username: username})
