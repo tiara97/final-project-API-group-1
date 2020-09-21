@@ -13,7 +13,7 @@ module.exports = {
             if(orderNumber.length === 0) return res.status(200).send(orderNumber)
 
             // get cart data from order_details
-            const getCart = `SELECT od.id, o.user_id, o.order_number, o.order_date, o.required_date, o.send_date, o.done_date, od.product_id, od.color_id, p.name, pc.color, od.qty, od.price_each FROM orders o
+            const getCart = `SELECT od.id, o.user_id, o.order_number, o.warehouse_id, o.order_date, o.required_date, o.send_date, o.done_date, od.product_id, od.color_id, p.name, pc.color, od.qty, od.price_each FROM orders o
                         JOIN order_details od ON o.order_number = od.order_number
                         JOIN products p ON od.product_id = p.id
                         JOIN product_color pc ON od.color_id = pc.id 
