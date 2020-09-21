@@ -1,5 +1,5 @@
 const database = require('../database')
-const { asyncQuery } = require('../helper/queryHelper')
+const { asyncQuery, generateQuery } = require('../helper/queryHelper')
 
 module.exports={
     getProfile: async(req,res)=>{

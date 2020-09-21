@@ -3,6 +3,7 @@ const {asyncQuery} = require("../helper")
 
 module.exports={
     getAddress: async(req,res)=>{
+        console.log('tes')
         const Id = parseInt(req.params.id)
         try {
             console.log('test')
