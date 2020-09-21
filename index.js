@@ -26,7 +26,16 @@ database.connect((err)=>{
 })
 
 
-const {productRouter, cartRouter, userRouter, orderRouter, profileRouter, carouselRouter, transactionRouter, warehouseRouter, categoryRouter} = require("./router")
+const {productRouter, 
+        cartRouter, 
+        userRouter, 
+        orderRouter, 
+        profileRouter, 
+        carouselRouter, 
+        transactionRouter, 
+        warehouseRouter, 
+        categoryRouter,
+        addressRouter} = require("./router")
 
 app.use("/api/users", userRouter)
 app.use("/api/orders", orderRouter)
@@ -38,6 +47,7 @@ app.use("/api/warehouse", warehouseRouter)
 app.use("/api/category", categoryRouter)
 app.use('/api/products', productRouter)
 app.use('/api/cart', cartRouter)
+app.use("/api/address", addressRouter)
 
 
 const PORT = 2000

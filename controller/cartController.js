@@ -13,7 +13,7 @@ module.exports = {
             if(orderNumber.length === 0) return res.status(200).send(orderNumber)
 
             // get cart data from order_details
-            const getCart = `SELECT od.id, o.user_id, o.order_number, o.order_date, o.required_date, o.send_date, o.done_date, od.product_id, p.name, pc.color, od.qty, od.price_each FROM orders o
+            const getCart = `SELECT od.id, o.user_id, o.order_number, o.order_date, o.required_date, o.send_date, o.done_date, od.product_id, od.color_id, p.name, pc.color, od.qty, od.price_each FROM orders o
                         JOIN order_details od ON o.order_number = od.order_number
                         JOIN products p ON od.product_id = p.id
                         JOIN product_color pc ON od.color_id = pc.id 
@@ -44,7 +44,8 @@ module.exports = {
 
         try {
             // check product in our database
-            const check = `SELECT * FROM product_stock
+            const check = `SELECT * FROM product_stock ps
+                        JOIN products p ON p.id = ps.product_id
                         WHERE product_id = ${product_id} AND color_id = ${color_id}`
             const resultCheck = await asyncQuery(check)
 
@@ -53,8 +54,10 @@ module.exports = {
 
             // check quantity vs stock
             let stock_available = 0
-            resultCheck.forEach(item => stock_available += item.stock_operational)
-            if(qty > stock_available) return res.status(400).send(`Stock in our database only ${stock_available}. Please try again!`)
+            resultCheck.forEach(item => stock_available += item.stock_available)
+            if(qty > stock_available){
+                return res.status(400).send(`Stok untuk produk ${resultCheck[0].name} hanya tersedia ${stock_available}`)
+            }
 
             // check orderNumber in our database
             const orderNumberCart = `SELECT order_number FROM orders WHERE user_id = ${user_id} AND order_status_id = 1`
@@ -90,7 +93,7 @@ module.exports = {
         }
     },
     editQtyInCart: async (req, res) => {
-       const { user_id, qty } = req.body
+       const { user_id, qty, color_id } = req.body
 
         // id from table order_details
        const id = parseInt(req.params.id)
@@ -101,7 +104,26 @@ module.exports = {
             // check orderNumber in table orders
             if (resCheckOrder.length === 0) return res.status(422).send(`There is something wrong. You can't edit this product from cart`)
 
-            // delete product from order_details
+            // check qty vs stock
+            const getProductID = `SELECT product_id FROM order_details WHERE id = ${database.escape(id)}`
+            const ID = await asyncQuery(getProductID)
+
+            // check product in our database
+            const check = `SELECT * FROM product_stock ps
+                        JOIN products p ON p.id = ps.product_id
+                        WHERE product_id = ${ID[0].product_id} AND color_id = ${color_id}`
+            const resultCheck = await asyncQuery(check)
+
+            // send response if product doesn't exists
+            if(resultCheck.length === 0) return res.status(422).send(`Your input can't process in our database. Check your input product, size, or color.`)
+
+            // check quantity vs stock
+            let stock_available = 0
+            resultCheck.forEach(item => stock_available += item.stock_available)
+            if(qty > stock_available){
+                return res.status(400).send(`Stok untuk produk ${resultCheck[0].name} hanya tersedia ${stock_available}`)
+            }
+            // update product from order_details
             const editProduct = `UPDATE order_details SET qty = ${qty} WHERE id = ${id}`
             const resEdit = await asyncQuery(editProduct)
 
