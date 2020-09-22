@@ -39,7 +39,8 @@ module.exports = {
             product_id, 
             color_id, 
             qty, 
-            price_each
+            price_each,
+            weight,
         } = req.body
 
         try {
@@ -81,8 +82,8 @@ module.exports = {
             }
 
             // input product in order_details
-            const addToCart = `INSERT INTO order_details (order_number, product_id, color_id, qty, price_each) 
-                            VALUES (${orderNum}, ${product_id}, ${color_id}, ${qty}, ${price_each})`
+            const addToCart = `INSERT INTO order_details (order_number, product_id, color_id, qty, price_each, weight) 
+                            VALUES (${orderNum}, ${product_id}, ${color_id}, ${qty}, ${price_each}, ${weight})`
             const resAddtocart = await asyncQuery(addToCart)
 
             // send response
@@ -185,6 +186,7 @@ module.exports = {
             let lon2 = 0
             let jarak = []
             let wareHouseID = null
+            let distance = 0
 
             warehouse.map((item)=>{
                 return(
@@ -200,17 +202,29 @@ module.exports = {
                     c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)),
                     d = R * c, // in metres
                     jarak.push(d),
-                    d === Math.min(...jarak)? warehouseID = item.id : null
+                    d === Math.min(...jarak)? (warehouseID = item.id, distance = d ): null
                     )
                 })
             console.log("warehouse id : ",warehouseID)
 
             // Update warehouse id on table orders
-            const updateOrders = `UPDATE orders SET warehouse_id = ${database.escape(warehouseID)}
+            const updateOrders = `UPDATE orders SET warehouse_id = ${database.escape(warehouseID)},
+                                distance = ${database.escape(distance)}
                                 WHERE order_number = ${database.escape(order_number)}`
             const result = await asyncQuery(updateOrders)
 
             res.status(200).send(result)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
+    },
+    getOngkir: async(req,res)=>{
+        const {order_number} = req.body
+        try {
+            const getTotalWeight = `SELECT SUM(weight * qty) AS total_weight 
+                                    FROM order_details WHERE order_number = ${database.escape(order_number)}`
+            const totalWeight = await asyncQuery(getTotalWeight)
         } catch (error) {
             console.log(error)
             res.status(500).send(error)
