@@ -42,13 +42,13 @@ module.exports={
         // id address
         const Id = parseInt(req.params.id)
         try {
+             // check user id
              const checkId = `SELECT * FROM user_address WHERE id = ${database.escape(Id)}`
              const resultId = await asyncQuery(checkId)
  
              if(resultId.length === 0){
                  return res.status(400).send(`Address with id : ${Id} doesn\'t exists`)
              }
- 
              const edit = `UPDATE user_address SET ${generateQuery(req.body)} WHERE id = ${database.escape(Id)}`
              const result = await asyncQuery(edit)
              res.status(200).send(result)
