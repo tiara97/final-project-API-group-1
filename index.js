@@ -12,13 +12,13 @@ app.use(bodyParser.json())
 app.use(express.static('./public'))
 
 
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
     res.status(200).send("Final Project API")
 })
 
 const database = require('./database')
-database.connect((err)=>{
-    if(err){
+database.connect((err) => {
+    if (err) {
         return console.error("error connecting : " + err.stack)
     }
 
@@ -26,16 +26,17 @@ database.connect((err)=>{
 })
 
 
-const {productRouter, 
-        cartRouter, 
-        userRouter, 
-        orderRouter, 
-        profileRouter, 
-        carouselRouter, 
-        transactionRouter, 
-        warehouseRouter, 
-        categoryRouter,
-        addressRouter} = require("./router")
+const { productRouter,
+    cartRouter,
+    userRouter,
+    orderRouter,
+    profileRouter,
+    carouselRouter,
+    transactionRouter,
+    warehouseRouter,
+    categoryRouter,
+    addressRouter,
+    favoriteRouter } = require("./router")
 
 app.use("/api/users", userRouter)
 app.use("/api/orders", orderRouter)
@@ -48,10 +49,10 @@ app.use("/api/category", categoryRouter)
 app.use('/api/products', productRouter)
 app.use('/api/cart', cartRouter)
 app.use("/api/address", addressRouter)
-
+app.use("/api/favorite", favoriteRouter)
 
 const PORT = 2000
-app.listen(PORT, ()=> console.log(`Server is running at port ${PORT}`))
+app.listen(PORT, () => console.log(`Server is running at port ${PORT}`))
 
 
 // test branch
