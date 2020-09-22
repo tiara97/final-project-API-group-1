@@ -22,7 +22,7 @@ module.exports={
             LEFT JOIN address_type a on ua.address_type_id = a.id
             WHERE ua.user_id = ${database.escape(Id)}`
             const result = await asyncQuery(getAddress)
-            res.status(200).send(result[0])
+            res.status(200).send(result)
         } catch (error) {
             console.log(error)
             res.status(500).send(error)
@@ -32,7 +32,7 @@ module.exports={
         const Id = parseInt(req.params.id)
         try {
              // check user id
-             const checkId = `SELECT * FROM user_address WHERE user_id = ${database.escape(Id)}`
+             const checkId = `SELECT * FROM user_address WHERE id = ${database.escape(Id)}`
              const resultId = await asyncQuery(checkId)
  
              if(resultId.length === 0){
@@ -40,7 +40,7 @@ module.exports={
              }
  
              const edit = `UPDATE user_address SET ${generateQuery(req.body)}
-                         WHERE user_id = ${database.escape(Id)}`
+                         WHERE id = ${database.escape(Id)}`
              const result = await asyncQuery(edit)
              res.status(200).send(result)
         } catch (error) {
