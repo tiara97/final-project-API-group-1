@@ -8,7 +8,7 @@ module.exports={
     generateQuery: (body)=>{
         let setQuery = ""
         for(let key in body){
-            setQuery += `${key} = ${database.escape(body[key])},`
+            setQuery += `\`${key}\` = ${database.escape(body[key])},`
         }
         return setQuery.slice(0,-1)
     }
