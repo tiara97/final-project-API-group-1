@@ -8,6 +8,19 @@ module.exports={
             // get profile data
             const getProfile = `SELECT * FROM user_profiles WHERE user_id = ${database.escape(Id)}`
             const result = await asyncQuery(getProfile)
+            res.status(200).send(result[0])
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
+    },
+    setMainAddress: async(req,res)=>{
+        const {id_address} = req.body
+        // id user
+        const Id = parseInt(req.params.id)
+        try {
+            const query = `UPDATE user_profiles SET main_address_id = ${database.escape(id_address)} WHERE user_id = ${database.escape(Id)};`
+            const result = await asyncQuery(query)
             res.status(200).send(result)
         } catch (error) {
             console.log(error)
@@ -44,18 +57,6 @@ module.exports={
         try {
             const query = `UPDATE user_profiles SET image = 'image/${req.file.filename}' WHERE user_id = ${database.escape(Id)};`
             const result = await asyncQuery(query)
-            res.status(200).send(result)
-        } catch (error) {
-            console.log(error)
-            res.status(500).send(error)
-        }
-    },
-    getFavoriteData: async(req,res)=>{
-        const Id = parseInt(req.params.id)
-        try {
-            // get favorite data
-            const getFavorite = `SELECT * FROM favorite WHERE user_id = ${database.escape(Id)}`
-            const result = await asyncQuery(getFavorite)
             res.status(200).send(result)
         } catch (error) {
             console.log(error)

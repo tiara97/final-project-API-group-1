@@ -21,7 +21,7 @@ module.exports={
         }
     },
     register: async(req,res)=>{
-        const { username, password, confPassword, email, user_fullname, phone, address, city, province, postcode } = req.body
+        const { username, password, confPassword, email, user_fullname, phone, address, city, province, postcode, latitude, longitude } = req.body
         const error = validationResult(req)
 
         // check input with express validator
@@ -59,7 +59,7 @@ module.exports={
             const resultAddProfile = await asyncQuery(addProfile)
 
             // add to address table
-            const addAddress = `INSERT INTO user_address(user_id, address, city, province, postcode) VALUES (${database.escape(new_user_id)}, ${database.escape(address)}, ${database.escape(city)}, ${database.escape(province)}, ${database.escape(postcode)}) `
+            const addAddress = `INSERT INTO user_address(user_id, address, city, province, postcode, latitude, longitude) VALUES (${database.escape(new_user_id)}, ${database.escape(address)}, ${database.escape(city)}, ${database.escape(province)}, ${database.escape(postcode)}, ${database.escape(latitude)}, ${database.escape(longitude)}) `
             const resultAddAddress = await asyncQuery(addAddress)
 
             // create token

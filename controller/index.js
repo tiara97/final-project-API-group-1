@@ -9,6 +9,7 @@ const transactionController = require('./transactionController')
 const warehouseController = require('./warehouseController')
 const categoryController = require("./categoryController")
 const addressController = require("./addressController")
+const favoriteController = require("./favoriteController")
 
 module.exports = {
     userController,
@@ -20,5 +21,6 @@ module.exports = {
     categoryController,
     productController, 
     cartController,
-    addressController
+    addressController,
+    favoriteController
 }
