@@ -1,5 +1,5 @@
 const database = require('../database')
-const {asyncQuery} = require('../helpers/queryHelp')
+const {asyncQuery} = require('../helper/queryHelper')
 
 module.exports = {
     getCart: async (req, res) => {
