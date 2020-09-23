@@ -11,6 +11,7 @@ router.post('/add', cartController.addToCart)
 router.patch('/edit/:id', cartController.editQtyInCart)
 router.delete('/delete/:id', cartController.deleteCart)
 router.patch('/warehouseID/:id', cartController.updateWarehouseID)
+router.patch('/getOngkir', cartController.getOngkir)
 
 // export router
 module.exports = router
