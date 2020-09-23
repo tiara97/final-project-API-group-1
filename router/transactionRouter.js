@@ -6,7 +6,7 @@ const DESTINATION = './public/receipt'
 const uploader = upload(DESTINATION)
 
 router.patch("/checkout/:order", transactionController.checkoutConfirmation)
-router.post("/payment/:order", uploader, transactionController.paymentUpload)
+router.post("/payment/upload/:order", uploader, transactionController.paymentUpload)
 router.patch("/payment/:order", transactionController.paymentConfirmation)
 router.patch("/send/:order", transactionController.sendConfirmation)
 router.patch("/done/:order", transactionController.doneConfirmation)

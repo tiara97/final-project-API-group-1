@@ -206,6 +206,7 @@ module.exports = {
                     )
                 })
             console.log("warehouse id : ",warehouseID)
+            // fungsi haversine coba dikeluarin
 
             // Update warehouse id on table orders
             const updateOrders = `UPDATE orders SET warehouse_id = ${database.escape(warehouseID)},

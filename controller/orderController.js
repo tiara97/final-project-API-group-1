@@ -5,7 +5,7 @@ module.exports = {
     getOrdersData: async(req,res)=>{
         try {
             // get all order data
-            const getOrders = `SELECT o.id, o.user_id, o.order_number, o.order_date, o.required_date,
+            const getOrders = `SELECT o.id, o.user_id, o.order_number, o.total_ongkir, o.order_date, o.required_date,
                                 o.send_date, o.done_date , GROUP_CONCAT(p.name) AS name, GROUP_CONCAT(od.color_id) AS color,
                                 GROUP_CONCAT(od.qty) AS qty, GROUP_CONCAT(od.price_each) AS price_each, os.status, w.name as warehouse  FROM orders o
                                 JOIN order_details od ON o.order_number = od.order_number
@@ -35,7 +35,7 @@ module.exports = {
         const Id = req.params.id
         try {
             // get order per user id
-            const getOrders = `SELECT o.id, o.user_id, o.order_number, o.order_date, o.required_date,
+            const getOrders = `SELECT o.id, o.user_id, o.order_number, o.total_ongkir, o.order_date, o.required_date,
                                 o.send_date, o.done_date , GROUP_CONCAT(p.name) AS name, GROUP_CONCAT(od.color_id) AS color,
                                 GROUP_CONCAT(od.qty) AS qty, GROUP_CONCAT(od.price_each) AS price_each, os.status, w.name as warehouse  FROM orders o
                                 JOIN order_details od ON o.order_number = od.order_number
@@ -65,7 +65,7 @@ module.exports = {
         const order_number = req.params.order_number
         try {
             // get order per user id
-            const getOrders = `SELECT o.id, o.user_id, o.order_number, o.order_date, o.required_date,
+            const getOrders = `SELECT o.id, o.user_id, o.order_number, o.total_ongkir, o.order_date, o.required_date,
                                 o.send_date, o.done_date , GROUP_CONCAT(p.name) AS name, GROUP_CONCAT(od.color_id) AS color,
                                 GROUP_CONCAT(od.qty) AS qty, GROUP_CONCAT(od.price_each) AS price_each, os.status, w.name as warehouse  FROM orders o
                                 JOIN order_details od ON o.order_number = od.order_number
