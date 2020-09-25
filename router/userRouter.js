@@ -7,6 +7,10 @@ const { userController} = require("../controller")
 
 // create router
 router.get("/get", userController.getUsersData)
+router.get("/getAdmin", userController.getUsersDataAdmin)
+router.get("/getByQuery", userController.getUsersByQuery)
+router.get("/getByRoleAdmin/:id", userController.getUsersByRoleAdmin)
+router.get("/getByStatusAdmin/:id", userController.getUsersByStatusAdmin)
 router.post("/register", registValidator, userController.register)
 router.post("/verification", verify, userController.emailVerification)
 router.post("/login", userController.login)
