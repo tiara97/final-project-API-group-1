@@ -13,10 +13,15 @@ module.exports = {
             if(orderNumber.length === 0) return res.status(200).send(orderNumber)
 
             // get cart data from order_details
-            const getCart = `SELECT od.id, o.user_id, o.order_number, o.warehouse_id, o.total_ongkir, o.order_date, o.required_date, o.send_date, o.done_date, od.product_id, od.color_id, p.name, pc.color, od.qty, od.price_each FROM orders o
+            const getCart = `SELECT od.id, o.user_id, o.order_number, o.warehouse_id, 
+                        o.total_ongkir, o.order_date, o.required_date, o.send_date, o.done_date, 
+                        od.product_id, od.color_id, p.name, pc.color, od.qty, od.price_each, tb2.image FROM orders o
                         JOIN order_details od ON o.order_number = od.order_number
                         JOIN products p ON od.product_id = p.id
                         JOIN product_color pc ON od.color_id = pc.id 
+                        JOIN (SELECT product_id, image
+                            FROM product_images
+                            GROUP BY product_id) AS tb2 ON od.product_id = tb2.product_id
                         WHERE o.order_number = ${orderNumber[0].order_number}`
             const cart = await asyncQuery(getCart)
 
@@ -43,6 +48,16 @@ module.exports = {
             weight,
         } = req.body
 
+        // check color input
+        if(!color_id){
+            return res.status(422).send(`Anda belum memilih warna produk!`)
+        }
+
+        // check qty input
+        if(qty < 1){
+            return res.status(422).send(`Input jumlah tidak boleh kurang dari 1!`)
+        }
+
         try {
             // check product in our database
             const check = `SELECT * FROM product_stock ps
@@ -53,6 +68,7 @@ module.exports = {
             // send response if product doesn't exists
             if(resultCheck.length === 0) return res.status(422).send(`Your input can't process in our database. Check your input product, size, or color.`)
 
+          
             // check quantity vs stock
             let stock_available = 0
             resultCheck.forEach(item => stock_available += item.stock_available)
