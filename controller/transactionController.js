@@ -29,7 +29,7 @@ module.exports = {
             return res.status(400).send('No image')
         }
         try {
-            const query = `UPDATE orders SET payment_note = 'receipt/${req.file.filename}' WHERE order_number = ${database.escape(order)};`
+            const query = `UPDATE orders SET payment_note = 'receipt/${req.file.filename}', upload_date='${today}' WHERE order_number = ${database.escape(order)};`
             const result = await asyncQuery(query)
             res.status(200).send(result)
         } catch (error) {
@@ -73,11 +73,23 @@ module.exports = {
             res.status(500).send(error)
         }
     },
-    // user cancel order or exceed payment time limit
+    // user cancel order
     cancelConfirmation: async (req, res) => {
         const order = parseInt(req.params.order)
         try {
             const query = `UPDATE orders SET order_status_id = 6 WHERE order_number = ${database.escape(order)};`
+            const result = await asyncQuery(query)
+            res.status(200).send(result)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
+    },
+    // reject order because payment note is rejected
+    rejectConfirmation: async (req, res) => {
+        const order = parseInt(req.params.order)
+        try {
+            const query = `UPDATE orders SET order_status_id = 7 WHERE order_number = ${database.escape(order)};`
             const result = await asyncQuery(query)
             res.status(200).send(result)
         } catch (error) {

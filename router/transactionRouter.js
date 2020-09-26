@@ -11,5 +11,6 @@ router.patch("/payment/:order", transactionController.paymentConfirmation)
 router.patch("/send/:order", transactionController.sendConfirmation)
 router.patch("/done/:order", transactionController.doneConfirmation)
 router.patch("/cancel/:order", transactionController.cancelConfirmation)
+router.patch("/reject/:order", transactionController.rejectConfirmation)
 
 module.exports = router
