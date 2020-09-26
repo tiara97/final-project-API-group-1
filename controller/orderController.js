@@ -91,7 +91,8 @@ module.exports = {
             JOIN (SELECT product_id, image
                 FROM product_images
                 GROUP BY product_id) AS tb2 ON od.product_id = tb2.product_id
-            WHERE o.order_number = ${database.escape(order_number)} GROUP BY o.order_number;`
+            WHERE o.order_number = ${order_number}
+            GROUP BY o.order_number;`
             const result = await asyncQuery(getOrders)
 
             result.forEach((item)=>{

@@ -11,6 +11,7 @@ const warehouseRouter = require("./warehouseRouter");
 const categoryRouter = require("./categoryRouter")
 const addressRouter = require("./addressRouter")
 const favoriteRouter = require("./favoriteRouter")
+const productCategoryRouter = require("./productCategoryRouter")
 
 // export router
 module.exports = {
@@ -24,6 +25,7 @@ module.exports = {
   warehouseRouter,
   categoryRouter,
   addressRouter,
-  favoriteRouter
+  favoriteRouter,
+  productCategoryRouter
 };
 
