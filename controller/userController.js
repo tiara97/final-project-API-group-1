@@ -282,7 +282,12 @@ module.exports={
             if(hashPass.toString() !== result[0].password){
                 return res.status(400).send("Password invalid!")
             }
-
+            // check status admin
+            if(result[0].role_id === 2) {
+                const checkWH = `SELECT id FROM warehouse WHERE admin_id =${result[0].id}`
+                const resultWH = await asyncQuery(checkWH)
+                result[0].wh_id = resultWH[0].id
+            }
             // create token
             const token = createToken({
                 id: result[0].id,
@@ -303,6 +308,11 @@ module.exports={
             const keepLogin = `SELECT * FROM users
                                  WHERE id=${req.data.id} AND username='${req.data.username}'`;
             const result = await asyncQuery(keepLogin);
+            if(result[0].role_id === 2) {
+                const checkWH = `SELECT id FROM warehouse WHERE admin_id =${result[0].id}`
+                const resultWH = await asyncQuery(checkWH)
+                result[0].wh_id = resultWH[0].id
+            }
             console.log("result : ", result);
             res.status(200).send(result[0]);
         } catch (error) {
