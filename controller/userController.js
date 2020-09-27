@@ -105,7 +105,7 @@ module.exports={
 
         // check password === confPassword?
         if(password !== confPassword){
-            return res.status(400).send("Password doesn't match!")
+            return res.status(400).send({errors: "Password doesn't match!"})
         }
 
         try {
@@ -114,7 +114,7 @@ module.exports={
             const resultCheck = await asyncQuery(checkUser)
 
             if(resultCheck.length > 0){
-                return res.status(400).send("Usename or email already registered!")
+                return res.status(422).send({errors:"Username or email already used"})
             }
 
             const hashPass = CryptoJS.HmacMD5(password, SECRET_KEY)
