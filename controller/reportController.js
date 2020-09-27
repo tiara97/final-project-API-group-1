@@ -8,7 +8,9 @@ module.exports = {
             const query = `SELECT od.product_id AS id, p.name, tb2.image, SUM(od.qty) AS qty, od.price_each FROM order_details od
                         JOIN products p ON od.product_id = p.id
                         JOIN (SELECT pi.product_id AS product_id,GROUP_CONCAT(pi.image SEPARATOR ',') AS image
-	                        FROM product_images pi GROUP BY pi.product_id) tb2 ON od.product_id = tb2.product_id
+                            FROM product_images pi GROUP BY pi.product_id) tb2 ON od.product_id = tb2.product_id
+                        JOIN orders o ON od.order_number = o.order_number
+                        WHERE o.order_status_id = 5
                         GROUP BY od.product_id
                         ORDER BY qty DESC
                         LIMIT ${limit};`
