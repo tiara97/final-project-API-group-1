@@ -5,13 +5,21 @@ const { generateQuery, asyncQuery } = require("../helper/queryHelper");
 module.exports = {
   getProduct: async (req, res) => {
     const {type} = req.params
+    const query = req.query
     try {
+      // check sort query
+      let sort = ''
+      if (query._sort) {
+          sort += `ORDER BY ${query._sort} ${ query._order ? query._order.toUpperCase() : 'ASC'}`
+          console.log('sort query : ', sort)
+      }
+      
       // get data all product
-      let query = ''
+      let getData = ''
       if(type === 'only_product'){
-        query = `SELECT * FROM products`
+        getData = `SELECT * FROM products`
       } else if(type === 'product_details') {
-        query = `SELECT p.id, p.name, tb3.category, tb2.image, p.price, p.desc, CONCAT(height, ',', width, ',', length) AS size, p.weight, p.material, color, stock_available, stock_ordered, warehouse_id
+        getData = `SELECT p.id, p.name, tb2.image, p.price, p.desc, CONCAT(height, ',', width, ',', length) AS size, p.weight, p.material, color, stock_available, stock_ordered, warehouse_id
                 FROM products p
                 JOIN (SELECT product_id, GROUP_CONCAT(pc.color) AS color, GROUP_CONCAT(stock_available) AS stock_available, GROUP_CONCAT(stock_ordered) AS stock_ordered, GROUP_CONCAT(warehouse_id) AS warehouse_id
                     FROM product_stock pstock
@@ -20,10 +28,13 @@ module.exports = {
                 JOIN (SELECT product_id, GROUP_CONCAT(image) AS image
                     FROM product_images
                     GROUP BY product_id) AS tb2 ON p.id = tb2.product_id
-                JOIN (SELECT pc.product_id, c.category FROM categories c
-                    JOIN product_category pc ON c.id = pc.category_id) AS tb3 ON p.id = tb3.product_id`
+                ${sort}`
+      } else if(type === 'product_img_group'){
+        getData = `SELECT p.id, p.name, GROUP_CONCAT(pi.image) AS image FROM product_images pi
+              RIGHT JOIN products p ON pi.product_id = p.id
+              GROUP BY p.id`
       }
-      const result = await asyncQuery(query);
+      const result = await asyncQuery(getData);
 
       if(type === 'product_details'){
         // declare new property
@@ -43,6 +54,10 @@ module.exports = {
           item.total_stock_ordered = item.stock_ordered.reduce((a, b) => parseInt(a) + parseInt(b))
           item.total_stock_operational = item.total_stock_available + item.total_stock_ordered
         });
+      } else if(type === 'product_img_group'){
+          result.forEach((item) => {
+            item.image ? item.image = item.image.split(",") : item.image = []
+          });
       }
 
       // send result
@@ -60,8 +75,8 @@ module.exports = {
       let query = ''
       
       if (table === 'product_image'){
-        query = `SELECT pi.id, pi.product_id, p.name, pi.image FROM product_images pi
-              JOIN products p ON pi.product_id = p.id`
+        query = `SELECT pi.id, p.id AS product_id, p.name, pi.image FROM product_images pi
+              RIGHT JOIN products p ON pi.product_id = p.id`
       } else if (table === 'product_stock'){
         query = `SELECT ps.*, p.name, pc.color, w.name AS warehouse_name FROM products p
               JOIN product_stock ps ON p.id = ps.product_id
@@ -69,6 +84,8 @@ module.exports = {
               JOIN warehouse w ON ps.warehouse_id = w.id;`  
       } else if (table === 'product_color'){
         query = `SELECT * FROM product_color;`
+      } else if(table === 'only_product'){
+        query = `SELECT * FROM products`
       }
       const result = await asyncQuery(query);
 

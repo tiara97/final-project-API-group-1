@@ -37,7 +37,8 @@ const { productRouter,
     categoryRouter,
     addressRouter,
     favoriteRouter,
-    productCategoryRouter
+    productCategoryRouter,
+    reportRouter
  } = require("./router")
 
 app.use("/api/users", userRouter)
@@ -53,6 +54,7 @@ app.use('/api/cart', cartRouter)
 app.use("/api/address", addressRouter)
 app.use("/api/favorite", favoriteRouter)
 app.use("/api/product-category", productCategoryRouter)
+app.use("/api/report", reportRouter)
 
 const PORT = 2000
 app.listen(PORT, () => console.log(`Server is running at port ${PORT}`))
