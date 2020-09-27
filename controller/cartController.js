@@ -1,5 +1,5 @@
 const database = require('../database')
-const {asyncQuery} = require('../helper/queryHelper')
+const {asyncQuery, getClosestWarehouse} = require('../helper/queryHelper')
 
 module.exports = {
     getCart: async (req, res) => {
@@ -86,7 +86,7 @@ module.exports = {
                 const orderFix = `SELECT order_number FROM orders WHERE user_id = ${user_id} AND order_status_id != 1`
                 const resOrderFix = await asyncQuery(orderFix)
 
-                resOrderFix.length !== 0 ? orderNum = parseInt(resOrderFix[resOrderFix.length-1].order_number) + 1 : orderNum = `${userId}0001`
+                resOrderFix.length !== 0 ? orderNum = parseInt(resOrderFix[resOrderFix.length-1].order_number) + 1 : orderNum = `${user_id}0001`
 
                 // input order data in orders
                 const orders = `INSERT INTO orders (user_id, order_number, order_status_id) 
@@ -187,46 +187,16 @@ module.exports = {
             const getWarehouse = `SELECT * FROM warehouse`
             const warehouse = await asyncQuery(getWarehouse)
 
-            // compare all warehouse distance from user address using haversine method
-            let R = 6371e3
-            let φ1 = 0
-            let φ2 = 0
-            let Δφ = 0
-            let Δλ = 0
-            let a = 0
-            let c =0
-            let d = 0
-            let lat1 = latlong[0].latitude
-            let lat2 = 0
-            let lon1 = latlong[0].longitude
-            let lon2 = 0
-            let jarak = []
-            let wareHouseID = null
-            let distance = 0
-
-            warehouse.map((item)=>{
-                return(
-                    lat2 = item.latitude,
-                    lon2 = item.longitude,
-                    φ1 =lat1 * Math.PI/180, // φ, λ in radians
-                    φ2 = lat2 * Math.PI/180,
-                    Δφ = (lat2-lat1) * Math.PI/180,
-                    Δλ = (lon2-lon1) * Math.PI/180,
-                    a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                            Math.cos(φ1) * Math.cos(φ2) *
-                            Math.sin(Δλ/2) * Math.sin(Δλ/2),
-                    c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)),
-                    d = R * c, // in metres
-                    jarak.push(d),
-                    d === Math.min(...jarak)? (warehouseID = item.id, distance = d ): null
-                    )
-                })
-            console.log("warehouse id : ",warehouseID)
-            // fungsi haversine coba dikeluarin
-
+            const body ={
+                latitude: latlong[0].latitude,
+                longitude: latlong[0].longitude,
+                warehouse: warehouse
+            }
+            let wareHouseID =  getClosestWarehouse(body).nearest
+          
             // Update warehouse id on table orders
-            const updateOrders = `UPDATE orders SET warehouse_id = ${database.escape(warehouseID)},
-                                distance = ${database.escape(distance)}
+            const updateOrders = `UPDATE orders SET warehouse_id = ${database.escape(wareHouseID.id)},
+                                distance = ${database.escape(wareHouseID.distance)}
                                 WHERE order_number = ${database.escape(order_number)}`
             const result = await asyncQuery(updateOrders)
 
