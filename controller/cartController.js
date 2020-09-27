@@ -228,7 +228,7 @@ module.exports = {
             } else if(totalWeight[0].total_weight > maxWeight[1].weight && totalWeight[0].total_weight <= maxWeight[2].weight){
                 fee = parseInt(maxWeight[2].price)
             }else if(totalWeight[0].total_weight > maxWeight[2].weight){
-                fee = ((totalWeight[0].total_weight - maxWeight[2].weight) * 5000) + parseInt(maxWeight[2].price)
+                fee = (parseInt(totalWeight[0].total_weight - maxWeight[2].weight) * 5000) + parseInt(maxWeight[2].price)
             }
 
             // get distance from order
