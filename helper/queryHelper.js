@@ -43,7 +43,7 @@ module.exports={
                          Math.sin(Δλ/2) * Math.sin(Δλ/2),
                  c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
                  d = Math.round(R * c) // in metres
-                 jarak.push({id: item.id, distance: d})
+                 d === 0 ? null : jarak.push({id: item.id, distance: d}) 
                 //  d === Math.min(...jarak) && d !== 0? (warehouseID = item.id, distance = d): null
                  
              })

@@ -15,12 +15,12 @@ module.exports = {
         try {
             
             // get product from cart and product stock
-            const check = `select od.product_id, od.color_id, o.warehouse_id, od.qty, ps.stock_available, 
+            const check = `SELECT od.product_id, od.color_id, o.warehouse_id, od.qty, ps.stock_available, 
                         ps.stock_ordered, ps.warehouse_id as wh
-                        from orders o 
-                        join order_details od on o.order_number = od.order_number
+                        FROM orders o 
+                        JOIN order_details od ON o.order_number = od.order_number
                         JOIN product_stock ps ON ps.warehouse_id = o.warehouse_id
-                        where o.order_number = ${order} AND od.product_id = ps.product_id AND od.color_id = ps.color_id;`
+                        WHERE o.order_number = ${order} AND od.product_id = ps.product_id AND od.color_id = ps.color_id;`
             const stock =  await asyncQuery(check)
             
             // get warhouse
@@ -161,30 +161,18 @@ module.exports = {
             const getData = `SELECT product_id, color_id, qty FROM order_details WHERE order_number = ${database.escape(order)};`
             const data = await asyncQuery(getData)
             data.map(async (item, ind) => {
-                const getStock = `SELECT * FROM product_stock WHERE product_id = ${item.product_id} AND color_id = ${item.color_id} AND warehouse_id = ${wh_id};`
-                const stock = await asyncQuery(getStock)
-                let stock_available = stock[0].stock_available
-                let stock_ordered = stock[0].stock_ordered
-                console.log(stock_available, stock_ordered)
-                const minusStock = `UPDATE product_stock SET stock_available = ${stock_available + item.qty}, stock_ordered = ${stock_ordered - item.qty} WHERE product_id = ${item.product_id} AND color_id = ${item.color_id} AND warehouse_id = ${wh_id};`
-                const stockNew = await asyncQuery(minusStock)
+                try {
+                    const getStock = `SELECT * FROM product_stock WHERE product_id = ${item.product_id} AND color_id = ${item.color_id} AND warehouse_id = ${wh_id};`
+                    const stock = await asyncQuery(getStock)
+                    let stock_available = stock[0].stock_available
+                    let stock_ordered = stock[0].stock_ordered
+                    console.log(stock_available, stock_ordered)
+                    const minusStock = `UPDATE product_stock SET stock_available = ${stock_available + item.qty}, stock_ordered = ${stock_ordered - item.qty} WHERE product_id = ${item.product_id} AND color_id = ${item.color_id} AND warehouse_id = ${wh_id};`
+                    const stockNew = await asyncQuery(minusStock)
+                } catch (error) {
+                    console.log(error)
+                }
             })
-            // console.log(stock)
-            // data.forEach((item, index) => {
-            //     item.product_id = item.product_id.split(",")
-            //     item.color = item.color.split(",")
-            //     item.qty = item.qty.split(",")
-            // })
-            // const getStock = `SELECT * FROM product_stock WHERE product_id = 1 AND color_id = 1 AND warehouse_id = 1;`
-            // const stock = await asyncQuery(getStock)
-            // data[0].product_id.map((item, ind) => {
-            //     const getStock = `SELECT * FROM product_stock WHERE product_id = ${item} AND color_id = 1 AND warehouse_id = 1;`
-            //     const stock = await asyncQuery(getStock)
-            // })
-
-            // const minusStock = `UPDATE product_stock SET stock_available = '18', stock_ordered = '2' WHERE product_id = 1 AND color_id = 1 AND warehouse_id = ${database.escape(data)};`
-            // const getStock = `SELECT * FROM product_stock WHERE product_id = 1 AND color_id = 1 AND warehouse_id = 1;`
-            // const stock = await asyncQuery(getStock)
             res.status(200).send(changeStatus)
         } catch (error) {
             console.log(error)
@@ -202,13 +190,17 @@ module.exports = {
             const getData = `SELECT product_id, color_id, qty FROM order_details WHERE order_number = ${database.escape(order)};`
             const data = await asyncQuery(getData)
             data.map(async (item, ind) => {
-                const getStock = `SELECT * FROM product_stock WHERE product_id = ${item.product_id} AND color_id = ${item.color_id} AND warehouse_id = ${wh_id};`
-                const stock = await asyncQuery(getStock)
-                let stock_available = stock[0].stock_available
-                let stock_ordered = stock[0].stock_ordered
-                console.log(stock_available, stock_ordered)
-                const minusStock = `UPDATE product_stock SET stock_available = ${stock_available + item.qty}, stock_ordered = ${stock_ordered - item.qty} WHERE product_id = ${item.product_id} AND color_id = ${item.color_id} AND warehouse_id = ${wh_id};`
-                const stockNew = await asyncQuery(minusStock)
+                try {
+                    const getStock = `SELECT * FROM product_stock WHERE product_id = ${item.product_id} AND color_id = ${item.color_id} AND warehouse_id = ${wh_id};`
+                    const stock = await asyncQuery(getStock)
+                    let stock_available = stock[0].stock_available
+                    let stock_ordered = stock[0].stock_ordered
+                    console.log(stock_available, stock_ordered)
+                    const minusStock = `UPDATE product_stock SET stock_available = ${stock_available + item.qty}, stock_ordered = ${stock_ordered - item.qty} WHERE product_id = ${item.product_id} AND color_id = ${item.color_id} AND warehouse_id = ${wh_id};`
+                    const stockNew = await asyncQuery(minusStock)                  
+                } catch (error) {
+                    console.log(error)
+                }
             })
             res.status(200).send(changeStatus)
         } catch (error) {
