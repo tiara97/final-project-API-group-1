@@ -11,6 +11,8 @@ const categoryController = require("./categoryController");
 const addressController = require("./addressController");
 const favoriteController = require("./favoriteController");
 const productCategoryController = require("./productCategoryController");
+const reportController = require('./reportController')
+
 
 module.exports = {
   userController,
@@ -25,4 +27,5 @@ module.exports = {
   addressController,
   favoriteController,
   productCategoryController,
+  reportController
 };

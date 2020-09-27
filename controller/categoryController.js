@@ -19,7 +19,7 @@ module.exports = {
     getCategoriesByWarehouse: async(req,res)=>{
         try {
             // get all categories data
-            const getCategories = `SELECT c1.category_id, c1.category, c2.category as parent , c1.warehouse_id, c1.warehouse_name
+            const getCategories = `SELECT c1.category_id AS id, c1.category, c2.category as parent , c1.warehouse_id, c1.warehouse_name
                                 FROM (SELECT pc.product_id, pc.category_id, GROUP_CONCAT(p.name) AS name, c.category, w.id AS warehouse_id, w.name AS warehouse_name FROM product_category pc
                                 JOIN categories c ON pc.category_id = c.id
                                 JOIN product_stock ps ON pc.product_id = ps.product_id
