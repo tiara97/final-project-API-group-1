@@ -71,77 +71,7 @@ module.exports={
                             LEFT JOIN user_roles ur ON u.role_id = ur.id
                             LEFT JOIN user_status us ON u.status_id = us.id
                             LEFT JOIN address_type at ON ua.address_type_id = at.id
-                            WHERE ${query.slice(0,-4)}
-                            GROUP BY u.id`
-            const result = await asyncQuery(getUsers)
-
-            // convert data to array
-            result.forEach((item)=>{
-                item.address_id? (item.address_id = item.address_id.split(",")) : null
-                item.address? (item.address = item.address.split(",")) : null
-                item.city? (item.city = item.city.split(",")) : null
-                item.province? (item.province = item.province.split(",")) : null
-                item.postcode? (item.postcode = item.postcode.split(",")) : null
-                item.address_type? (item.address_type = item.address_type.split(",")) : null
-                item.latitude? (item.latitude = item.latitude.split(",")) : null
-                item.longitude? (item.longitude = item.longitude.split(",")) : null
-                })
-            
-            res.status(200).send(result)
-        } catch (error) {
-            console.log(error)
-            res.status(500).send(error)
-        }
-    },
-    getUsersByRoleAdmin: async(req,res)=>{
-        const Id = req.params.id
-        try {
-            // get all users data
-            const getUsers = `SELECT u.id, u.username, u.password, u.email, u.role_id, u.status_id, up.user_fullname, up.phone, up.gender, up.image, 
-                            up.main_address_id, GROUP_CONCAT(ua.id) AS address_id,GROUP_CONCAT(ua.address) AS address, GROUP_CONCAT(ua.city) AS city, 
-                            GROUP_CONCAT(ua.province) AS province, GROUP_CONCAT(ua.postcode) AS postcode, GROUP_CONCAT(at.type) AS address_type , 
-                            GROUP_CONCAT(ua.latitude) AS latitude, GROUP_CONCAT(ua.longitude) AS longitude,  ur.role, us.status FROM users u 
-                            LEFT JOIN user_profiles up ON u.id = up.user_id
-                            LEFT JOIN user_address ua ON u.id = ua.user_id
-                            LEFT JOIN user_roles ur ON u.role_id = ur.id
-                            LEFT JOIN user_status us ON u.status_id = us.id
-                            LEFT JOIN address_type at ON ua.address_type_id = at.id
-                            WHERE u.role_id = ${database.escape(Id)}
-                            GROUP BY u.id`
-            const result = await asyncQuery(getUsers)
-
-            // convert data to array
-            result.forEach((item)=>{
-                item.address_id? (item.address_id = item.address_id.split(",")) : null
-                item.address? (item.address = item.address.split(",")) : null
-                item.city? (item.city = item.city.split(",")) : null
-                item.province? (item.province = item.province.split(",")) : null
-                item.postcode? (item.postcode = item.postcode.split(",")) : null
-                item.address_type? (item.address_type = item.address_type.split(",")) : null
-                item.latitude? (item.latitude = item.latitude.split(",")) : null
-                item.longitude? (item.longitude = item.longitude.split(",")) : null
-                })
-            
-            res.status(200).send(result)
-        } catch (error) {
-            console.log(error)
-            res.status(500).send(error)
-        }
-    },
-    getUsersByStatusAdmin: async(req,res)=>{
-        const Id = req.params.id
-        try {
-            // get all users data
-            const getUsers = `SELECT u.id, u.username, u.password, u.email, u.role_id, u.status_id, up.user_fullname, up.phone, up.gender, up.image, 
-                            up.main_address_id, GROUP_CONCAT(ua.id) AS address_id,GROUP_CONCAT(ua.address) AS address, GROUP_CONCAT(ua.city) AS city, 
-                            GROUP_CONCAT(ua.province) AS province, GROUP_CONCAT(ua.postcode) AS postcode, GROUP_CONCAT(at.type) AS address_type , 
-                            GROUP_CONCAT(ua.latitude) AS latitude, GROUP_CONCAT(ua.longitude) AS longitude,  ur.role, us.status FROM users u 
-                            LEFT JOIN user_profiles up ON u.id = up.user_id
-                            LEFT JOIN user_address ua ON u.id = ua.user_id
-                            LEFT JOIN user_roles ur ON u.role_id = ur.id
-                            LEFT JOIN user_status us ON u.status_id = us.id
-                            LEFT JOIN address_type at ON ua.address_type_id = at.id
-                            WHERE u.status_id = ${database.escape(Id)}
+                            ${query !== ""? (`WHERE ${query.slice(0,-4)}`) : ("")}
                             GROUP BY u.id`
             const result = await asyncQuery(getUsers)
 
@@ -175,7 +105,7 @@ module.exports={
 
         // check password === confPassword?
         if(password !== confPassword){
-            return res.status(400).send("Password doesn't match!")
+            return res.status(400).send({errors: "Password doesn't match!"})
         }
 
         try {
@@ -184,7 +114,7 @@ module.exports={
             const resultCheck = await asyncQuery(checkUser)
 
             if(resultCheck.length > 0){
-                return res.status(400).send("Usename or email already registered!")
+                return res.status(422).send({errors:"Username or email already used"})
             }
 
             const hashPass = CryptoJS.HmacMD5(password, SECRET_KEY)
