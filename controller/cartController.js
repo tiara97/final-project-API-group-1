@@ -86,7 +86,7 @@ module.exports = {
                 const orderFix = `SELECT order_number FROM orders WHERE user_id = ${user_id} AND order_status_id != 1`
                 const resOrderFix = await asyncQuery(orderFix)
 
-                resOrderFix.length !== 0 ? orderNum = parseInt(resOrderFix[resOrderFix.length-1].order_number) + 1 : orderNum = `${userId}0001`
+                resOrderFix.length !== 0 ? orderNum = parseInt(resOrderFix[resOrderFix.length-1].order_number) + 1 : orderNum = `${user_id}0001`
 
                 // input order data in orders
                 const orders = `INSERT INTO orders (user_id, order_number, order_status_id) 
