@@ -12,7 +12,7 @@ const addressController = require("./addressController");
 const favoriteController = require("./favoriteController");
 const productCategoryController = require("./productCategoryController");
 const reportController = require('./reportController')
-
+const ongkirController = require('./ongkirController')
 
 module.exports = {
   userController,
@@ -27,5 +27,6 @@ module.exports = {
   addressController,
   favoriteController,
   productCategoryController,
-  reportController
+  reportController,
+  ongkirController
 };

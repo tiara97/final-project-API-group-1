@@ -276,5 +276,18 @@ module.exports = {
             console.log(error)
             res.status(500).send(error)
         }
+    },
+    updatePaymentMethod: async(req,res)=>{
+        const {payment_method_id, order_number} = req.body
+        try {
+            // update payment method id
+            const update = `UPDATE orders SET payment_method_id = ${database.escape(payment_method_id)}
+                            WHERE order_number = ${database.escape(order_number)}`
+            const result = await asyncQuery(update)
+            res.status(200).send(result)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
     }
 }
