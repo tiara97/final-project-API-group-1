@@ -39,6 +39,7 @@ const { productRouter,
     favoriteRouter,
     productCategoryRouter,
     reportRouter,
+    ongkirRouter,
     ratingRouter
  } = require("./router")
 
@@ -56,6 +57,7 @@ app.use("/api/address", addressRouter)
 app.use("/api/favorite", favoriteRouter)
 app.use("/api/product-category", productCategoryRouter)
 app.use("/api/report", reportRouter)
+app.use("/api/ongkir", ongkirRouter)
 app.use("/api/rating", ratingRouter)
 
 const PORT = 2000

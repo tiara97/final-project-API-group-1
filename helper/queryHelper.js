@@ -48,6 +48,7 @@ module.exports={
                  
              })
         let result = jarak.sort((a,b)=>a.distance - b.distance)
+        console.log(result)
         return {nearest: result[0],result}
     }
 }

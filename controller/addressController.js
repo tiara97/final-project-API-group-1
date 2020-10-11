@@ -27,10 +27,10 @@ module.exports={
         }
     },
     addAddress: async(req,res)=>{
-        const { address, city, province, postcode, latitude, longitude } = req.body
+        const {type, address, city, province, postcode, latitude, longitude } = req.body
         const Id = parseInt(req.params.id)
         try {
-            const addAddress = `INSERT INTO user_address(user_id, address, city, province, postcode, latitude, longitude) VALUES (${database.escape(Id)}, ${database.escape(address)}, ${database.escape(city)}, ${database.escape(province)}, ${database.escape(postcode)}, ${database.escape(latitude)}, ${database.escape(longitude)}) `
+            const addAddress = `INSERT INTO user_address(user_id, address, city, province, postcode, address_type_id, latitude, longitude) VALUES (${database.escape(Id)}, ${database.escape(address)}, ${database.escape(city)}, ${database.escape(province)}, ${database.escape(postcode)},${database.escape(type)}, ${database.escape(latitude)}, ${database.escape(longitude)}) `
             const result = await asyncQuery(addAddress)
             res.status(200).send(result)
         } catch (error) {
