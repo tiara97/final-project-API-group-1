@@ -15,7 +15,7 @@ module.exports = {
       }
       
       // get data all product
-      let getData = ''
+      let getData = '', StockOnDelivery
       if(type === 'only_product'){
         getData = `SELECT * FROM products`
       } else if(type === 'product_details') {
@@ -29,6 +29,11 @@ module.exports = {
                     FROM product_images
                     GROUP BY product_id) AS tb2 ON p.id = tb2.product_id
                 ${sort}`
+        const getStockOnDelivery = `SELECT od.product_id, GROUP_CONCAT(od.qty) AS qty FROM orders o
+                          JOIN order_details od ON o.order_number = od.order_number
+                          WHERE o.order_status_id = 4
+                          GROUP BY od.product_id;`
+        StockOnDelivery = await asyncQuery(getStockOnDelivery)
       } else if(type === 'product_img_group'){
         getData = `SELECT p.id, p.name, GROUP_CONCAT(pi.image) AS image FROM product_images pi
               RIGHT JOIN products p ON pi.product_id = p.id
@@ -38,10 +43,11 @@ module.exports = {
 
       if(type === 'product_details'){
         // declare new property
+        result.total_stock_onDelivery = 0
         result.total_stock_available = 0
         result.total_stock_ordered = 0
         result.total_stock_operational = 0
-  
+
         // convert data multiple dimensions to array
         result.forEach((item) => {
           item.image = item.image.split(",");
@@ -53,6 +59,11 @@ module.exports = {
           item.total_stock_available = item.stock_available.reduce((a, b) => parseInt(a) + parseInt(b))
           item.total_stock_ordered = item.stock_ordered.reduce((a, b) => parseInt(a) + parseInt(b))
           item.total_stock_operational = item.total_stock_available + item.total_stock_ordered
+          StockOnDelivery.forEach(value => {
+            if(item.id === value.product_id){
+              item.total_stock_onDelivery = parseInt(value.qty.split(',').reduce((a, b) => parseInt(a) + parseInt(b)))
+            }
+          })
         });
       } else if(type === 'product_img_group'){
           result.forEach((item) => {
@@ -72,22 +83,40 @@ module.exports = {
     const {table} = req.params
     try {
       // get data all product
-      let query = ''
-      
+      let query = '', StockOnDelivery
       if (table === 'product_image'){
         query = `SELECT pi.id, p.id AS product_id, p.name, pi.image FROM product_images pi
               RIGHT JOIN products p ON pi.product_id = p.id`
       } else if (table === 'product_stock'){
-        query = `SELECT ps.*, p.name, pc.color, w.name AS warehouse_name FROM products p
+        query = `SELECT ps.id, ps.product_id, p.name, ps.color_id, pc.color, ps.warehouse_id, w.name AS warehouse_name, ps.stock_available, ps.stock_ordered FROM products p
               JOIN product_stock ps ON p.id = ps.product_id
               JOIN product_color pc ON ps.color_id = pc.id
-              JOIN warehouse w ON ps.warehouse_id = w.id;`  
+              JOIN warehouse w ON ps.warehouse_id = w.id;`
+        const getStockOnDelivery = `SELECT od.product_id, od.color_id, o.warehouse_id, od.qty FROM orders o
+                                JOIN order_details od ON o.order_number = od.order_number
+                                WHERE o.order_status_id = 4;`
+        StockOnDelivery = await asyncQuery(getStockOnDelivery)
       } else if (table === 'product_color'){
         query = `SELECT * FROM product_color;`
       } else if(table === 'only_product'){
         query = `SELECT * FROM products`
       }
       const result = await asyncQuery(query);
+
+      // add new properties in result
+      result.stock_onDelivery = 0
+
+      if(table === 'product_stock'){
+        result.forEach(item => {
+          StockOnDelivery.forEach(value => {
+            if(item.product_id === value.product_id && item.color_id === value.color_id && item.warehouse_id === value.warehouse_id){
+              item.stock_onDelivery != 0 ? item.stock_onDelivery += value.qty : item.stock_onDelivery = value.qty
+              console.log('test')
+            }
+          })
+        })
+
+      }
 
       // send result
       res.status(200).send(result);
@@ -100,24 +129,29 @@ module.exports = {
   getProductDetails: async (req, res) => {
     try {
       // get product by id
-      const productDetails = `SELECT p.id, p.name, tb3.category, tb2.image, p.price, p.desc, CONCAT(height, ',', width, ',', length) AS size, p.weight, p.material, color, stock_available, stock_ordered, warehouse_id
+      const productDetails = `SELECT p.id, p.name, tb3.category, tb2.image, p.price, p.desc, CONCAT(height, ',', width, ',', length) AS size, p.weight, p.material
                           FROM products p
-                          JOIN (SELECT product_id, GROUP_CONCAT(pc.color) AS color, GROUP_CONCAT(stock_available) AS stock_available, GROUP_CONCAT(stock_ordered) AS stock_ordered, GROUP_CONCAT(warehouse_id) AS warehouse_id
-                              FROM product_stock pstock
-                              JOIN product_color pc ON pstock.color_id = pc.id
-                              GROUP BY product_id) AS tb1 ON p.id = tb1.product_id
                           JOIN (SELECT product_id, GROUP_CONCAT(image) AS image
-                              FROM product_images
-                              GROUP BY product_id) AS tb2 ON p.id = tb2.product_id
+                            FROM product_images
+                            GROUP BY product_id) AS tb2 ON p.id = tb2.product_id
                           JOIN (SELECT pc.product_id, c.category FROM categories c
-                              JOIN product_category pc ON c.id = pc.category_id) AS tb3 ON p.id = tb3.product_id
-                          WHERE id = ${req.params.id}`;
-      const result = await asyncQuery(productDetails);
-
+                            JOIN product_category pc ON c.id = pc.category_id) AS tb3 ON p.id = tb3.product_id
+                          WHERE p.id = ${req.params.id}`;
+      const resultProduct = await asyncQuery(productDetails);
+      
+      const stockDetails = `SELECT product_id, CONCAT(pc.id, ',' , pc.color, ',', pc.code) AS color, GROUP_CONCAT(stock_available) AS stock_available, GROUP_CONCAT(stock_ordered) AS stock_ordered, GROUP_CONCAT(warehouse_id) AS warehouse_id
+                        FROM product_stock pstock
+                        JOIN product_color pc ON pstock.color_id = pc.id
+                        WHERE product_id = ${req.params.id}
+                        GROUP BY pstock.product_id, pstock.color_id;`
+      const resultStock = await asyncQuery(stockDetails);
+      
       // convert data multiple dimensions to array
-      result.forEach((item) => {
+      resultProduct.forEach((item) => {
         item.image = item.image.split(",");
         item.size = item.size.split(",");
+      });
+      resultStock.forEach((item) => {
         item.color = item.color.split(",");
         item.stock_available = item.stock_available.split(",");
         item.stock_ordered = item.stock_ordered.split(",");
@@ -125,7 +159,7 @@ module.exports = {
       });
 
       // send result
-      res.status(200).send(result[0]);
+      res.status(200).send({product: resultProduct[0], stock: resultStock});
     } catch (err) {
       // send error
       console.log(err)
@@ -193,11 +227,18 @@ module.exports = {
                             JOIN product_category pc ON c.id = pc.category_id) AS tb3 ON p.id = tb3.product_id;`;
       const result = await asyncQuery(getProductWarehouse);
 
+      const getStockOnDelivery = `SELECT od.product_id, GROUP_CONCAT(od.qty) AS qty FROM orders o
+                              JOIN order_details od ON o.order_number = od.order_number
+                              WHERE o.order_status_id = 4 AND o.warehouse_id = ${warehouse_id}
+                              GROUP BY od.product_id;`
+      const StockOnDelivery = await asyncQuery(getStockOnDelivery)
+
       // get data admin warehouse
       const getAdmin = `SELECT * FROM warehouse WHERE admin_id = ${admin_id} OR id = ${warehouse_id}`
       const resultAdmin = await asyncQuery(getAdmin)
 
       // declare new property
+      result.total_stock_onDelivery = 0
       result.total_stock_available = 0
       result.total_stock_ordered = 0
       result.total_stock_operational = 0
@@ -211,6 +252,11 @@ module.exports = {
         item.total_stock_available = item.stock_available.reduce((a, b) => parseInt(a) + parseInt(b))
         item.total_stock_ordered = item.stock_ordered.reduce((a, b) => parseInt(a) + parseInt(b))
         item.total_stock_operational = parseInt(item.total_stock_available) + parseInt(item.total_stock_ordered)
+        StockOnDelivery.forEach(value => {
+          if(item.id === value.product_id){
+            item.total_stock_onDelivery = parseInt(value.qty.split(',').reduce((a, b) => parseInt(a) + parseInt(b)))
+          }
+        })
       });
 
       // send response
@@ -237,6 +283,31 @@ module.exports = {
 
       // edit product in database
       const editQuery = `UPDATE products SET ${generateQuery(req.body)}
+                    WHERE id = ${resultCheck[0].id}`;
+      const resultEdit = await asyncQuery(editQuery);
+
+      // send response
+      res.status(200).send(resultEdit);
+    } catch (err) {
+      // send error
+      console.log(err)
+      res.status(500).send(err);
+    }
+  },
+  editProductColor: async (req, res) => {
+    const { color_id } = req.params;
+    try {
+      // Check product in our database
+      const checkId = `SELECT * FROM product_color
+                    WHERE id = ${color_id}`;
+      const resultCheck = await asyncQuery(checkId);
+
+      // send response if product doesnt exists 
+      if (resultCheck.length === 0)
+        return res.status(200).send(`Color with id = ${color_id} doesn't exists`);
+
+      // edit product in database
+      const editQuery = `UPDATE product_color SET ${generateQuery(req.body)}
                     WHERE id = ${resultCheck[0].id}`;
       const resultEdit = await asyncQuery(editQuery);
 
@@ -328,6 +399,30 @@ module.exports = {
       res.status(500).send(err);
     }
   },
+  deleteProductColor: async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    try {
+      // check if product with id is exists in our database
+      const checkProduct = `SELECT * FROM product_color WHERE id = ${id}`;
+      const resultCheck = await asyncQuery(checkProduct);
+
+      // send response if product doesnt exists 
+      if (resultCheck.length === 0)
+        return res.status(200).send(`Color with id: ${id} doesn\'t exists.`);
+
+      // delete data image in table product image
+      const delColor = `DELETE FROM product_color WHERE id = ${id}`;
+      await asyncQuery(delColor);
+
+      // send result
+      res.status(200).send(`Color with id: ${id} already deleted from database`);
+    } catch (err) {
+      // send error
+      console.log(err)
+      res.status(500).send(err);
+    }
+  },
   deleteProductImage: async (req, res) => {
     const id = parseInt(req.params.id);
 
@@ -403,6 +498,30 @@ module.exports = {
 
       // send response
       res.status(200).send(result2);
+    } catch (err) {
+      // send error
+      console.log(err)
+      res.status(500).send(err);
+    }
+  },
+  addProductColor: async (req, res) => {
+    const { color, code } = req.body;
+    try {
+      // check if product with id exist in our database
+      const checkColor = `SELECT * FROM product_color WHERE color = ${database.escape(color)} OR code = ${database.escape(code)}`;
+      const check = await asyncQuery(checkColor);
+
+      // check product in table products
+      if (check.length !== 0)
+        return res.status(400).send("Color already exist.");
+
+      // insert new product image into database
+      const add = `INSERT INTO product_color (color, code) 
+                VALUES (${database.escape(color)}, ${database.escape(code)})`;
+      const resultAdd = await asyncQuery(add);
+
+      // send response
+      res.status(200).send(resultAdd);
     } catch (err) {
       // send error
       console.log(err)
