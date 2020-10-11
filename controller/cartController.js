@@ -9,6 +9,7 @@ module.exports = {
             const getOrderNumber = `SELECT * FROM orders WHERE user_id = ${id} AND order_status_id = 1`
             const orderNumber = await asyncQuery(getOrderNumber)
 
+            console.log('orderNumber: ', orderNumber)
             // check item in cart
             if(orderNumber.length === 0) return res.status(200).send(orderNumber)
 
@@ -84,12 +85,34 @@ module.exports = {
             // send response if product doesn't exists
             if(resultCheck.length === 0) return res.status(422).send(`Your input can't process in our database. Check your input product, size, or color.`)
 
+          
+            // check quantity vs stock
+            let stock_available = 0
+            resultCheck.forEach(item => stock_available += item.stock_available)
+            if(qty > stock_available){
+                return res.status(400).send(`Stok untuk produk ${resultCheck[0].name} hanya tersedia ${stock_available}`)
+            }
+            
+            // check quantity vs quantity user in cart
+            const checkCart = `SELECT od.product_id, SUM(od.qty) AS total_qty FROM orders o
+                            JOIN order_details od ON o.order_number = od.order_number
+                            WHERE o.order_status_id = 1 AND od.product_id = ${product_id} AND o.user_id = ${user_id}
+                            GROUP BY od.product_id;`
+            const resCheckCart = await asyncQuery(checkCart)
+
+            if(resCheckCart.length > 0 && qty > (stock_available - resCheckCart[0].total_qty)){
+                return res.status(400).send(`Stok untuk produk ${resultCheck[0].name} hanya tersedia ${stock_available - resCheckCart[0].total_qty}`)
+            }
+                            
+
             // check orderNumber in our database
             const orderNumberCart = `SELECT order_number FROM orders WHERE user_id = ${user_id} AND order_status_id = 1`
             const resOrderNumberCart = await asyncQuery(orderNumberCart)
+            console.log('resOrderNumberCart: ', resOrderNumberCart)
 
             // create order number
             let orderNum
+            console.log('orderNum: ', orderNum)
             if(resOrderNumberCart.length === 0){
                 const orderFix = `SELECT order_number FROM orders WHERE user_id = ${user_id} AND order_status_id != 1`
                 const resOrderFix = await asyncQuery(orderFix)
@@ -100,9 +123,10 @@ module.exports = {
                 const orders = `INSERT INTO orders (user_id, order_number, order_status_id) 
                             VALUES (${user_id}, '${orderNum}', 1)`
                 await asyncQuery(orders)
-                
+                console.log('orderNum1: ', orderNum)
             } else {
                 orderNum = resOrderNumberCart[0].order_number
+                console.log('orderNum2: ', orderNum)
             }
             // check product in order_details
             const checkProductID = `SELECT * FROM order_details WHERE order_number = ${orderNum} AND product_id = ${product_id} AND color_id = ${color_id}`
@@ -131,6 +155,7 @@ module.exports = {
                 const resAddtocart = await asyncQuery(addToCart)
             }
 
+            console.log(`orderNum: ${orderNum}, user_id: ${user_id}, product_id: ${product_id}, color_id: ${color_id}, qty: ${qty}, price_each: ${price_each}, weight:${weight}`)
             // send response
             res.status(200).send(resultCheckProd)
         } catch (error) {

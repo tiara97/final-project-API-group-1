@@ -14,6 +14,7 @@ const favoriteRouter = require("./favoriteRouter")
 const productCategoryRouter = require("./productCategoryRouter")
 const reportRouter = require('./reportRouter')
 const ongkirRouter = require("./ongkirRouter")
+const ratingRouter = require('./ratingRouter')
 
 // export router
 module.exports = {
@@ -30,6 +31,7 @@ module.exports = {
   favoriteRouter,
   productCategoryRouter,
   reportRouter,
-  ongkirRouter
+  ongkirRouter,
+  ratingRouter
 };
 
