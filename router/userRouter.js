@@ -8,6 +8,7 @@ const { userController} = require("../controller")
 // create router
 router.get("/get", userController.getUsersData)
 router.get("/getAdmin", userController.getUsersDataAdmin)
+router.get("/getAdminByID/:id", userController.getUsersDataAdminByID)
 router.get("/getByQuery", userController.getUsersByQuery)
 router.post("/register", registValidator, userController.register)
 router.post("/verification", verify, userController.emailVerification)
